@@ -21,8 +21,6 @@ Actor Property PlayerRef Auto
 Spell Property CloakAbility Auto
 
 ; FormLists
-;FormList Property CrimeFactions Auto
-;FormList Property TrackedBounties Auto
 FormList Property BaseFactions Auto
 FormList Property DisguiseFactions Auto
 FormList Property DisguiseFormlists Auto
@@ -34,13 +32,10 @@ FormList Property DisguiseSlots Auto
 Bool[] Property ArrayDisguisesEnabled Auto
 
 ; Other Arrays
-Int[] Property ArrayCrimeGold Auto
-Int[] Property ArrayCrimeGoldViolent Auto
 Int[] Property ArrayDisguisesVampire Auto
 Int[] Property VsArrayExclusionsVigilOfStendarr Auto
 Int[] Property VsArrayExclusionsWindhelmGuard Auto
 
-ObjectReference[] Property ArraySlotsEquipped Auto
 Message[] Property MessageChain Auto
 
 
