@@ -248,16 +248,16 @@ EndFunction
 
 
 Bool[] Function GetPossibleDisguisesByForm(Form akBaseObject)
-	Bool[] results = new Bool[31]
+	Bool[] rgbPossibleDisguises = new Bool[31]
 
 	Int i = 0
 
 	While i < DisguiseFormlists.GetSize()
-		results[i] = (DisguiseFormlists.GetAt(i) as FormList).HasForm(akBaseObject)
+		rgbPossibleDisguises[i] = (DisguiseFormlists.GetAt(i) as FormList).HasForm(akBaseObject)
 		i += 1
 	EndWhile
 
-	Return results
+	Return rgbPossibleDisguises
 EndFunction
 
 
@@ -295,39 +295,39 @@ Bool Function EssentialGearIsEquipped(Int aiFactionIndex, FormList akCurrentDisg
 		ElseIf aiFactionIndex == 28
 			; When Daedric gear is equipped in ANY slot, that's enough to match.
 
-			Bool[] bDaedricWornForms = new Bool[10]
+			Bool[] rgbDaedricWornForms = new Bool[10]
 
 			kWornForm = PlayerRef.GetEquippedArmorInSlot(iHair) as Form
-			bDaedricWornForms[0] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
+			rgbDaedricWornForms[0] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
 
 			kWornForm = PlayerRef.GetEquippedArmorInSlot(iBody) as Form
-			bDaedricWornForms[1] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
+			rgbDaedricWornForms[1] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
 
 			kWornForm = PlayerRef.GetEquippedArmorInSlot(iHands) as Form
-			bDaedricWornForms[2] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
+			rgbDaedricWornForms[2] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
 
 			kWornForm = PlayerRef.GetEquippedArmorInSlot(iAmulet) as Form
-			bDaedricWornForms[3] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
+			rgbDaedricWornForms[3] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
 
 			kWornForm = PlayerRef.GetEquippedArmorInSlot(iRing) as Form
-			bDaedricWornForms[4] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
+			rgbDaedricWornForms[4] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
 
 			kWornForm = PlayerRef.GetEquippedArmorInSlot(iFeet) as Form
-			bDaedricWornForms[5] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
+			rgbDaedricWornForms[5] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
 
 			kWornForm = PlayerRef.GetEquippedArmorInSlot(iShield) as Form
-			bDaedricWornForms[6] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
+			rgbDaedricWornForms[6] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
 
 			kWornForm = PlayerRef.GetEquippedArmorInSlot(iCirclet) as Form
-			bDaedricWornForms[7] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
+			rgbDaedricWornForms[7] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
 
 			kWornForm = PlayerRef.GetEquippedWeapon(True) as Form
-			bDaedricWornForms[8] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
+			rgbDaedricWornForms[8] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
 
 			kWornForm = PlayerRef.GetEquippedWeapon() as Form
-			bDaedricWornForms[9] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
+			rgbDaedricWornForms[9] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
 
-			bDaedricResult = bDaedricWornForms.Find(True) > -1
+			bDaedricResult = rgbDaedricWornForms.Find(True) > -1
 
 		; Bandits
 		ElseIf aiFactionIndex == 30
@@ -531,17 +531,17 @@ Function TryUpdateDisguise(Form akBaseObject)
 		iCycles += 1
 	EndWhile
 
-	Bool[] arPossibleDisguises = GetPossibleDisguisesByForm(akBaseObject)
+	Bool[] rgbPossibleDisguises = GetPossibleDisguisesByForm(akBaseObject)
 
-	If arPossibleDisguises.Find(True) == -1
+	If rgbPossibleDisguises.Find(True) == -1
 		;LogWarning("Cannot update disguise because disguise not associated with form: " + akBaseObject)
 		Return
 	EndIf
 
 	Int i = 0
 
-	While i < arPossibleDisguises.Length
-		If arPossibleDisguises[i]
+	While i < rgbPossibleDisguises.Length
+		If rgbPossibleDisguises[i]
 			UpdateDisguise(i)
 		EndIf
 		i += 1
