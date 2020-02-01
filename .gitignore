@@ -6,9 +6,6 @@ etc/
 optional/
 *.7z
 *.bak
-*.bsa
-*.dds
-*.esp
 *.ini
 *.json
 *.md
@@ -17,7 +14,6 @@ optional/
 *.prj
 *.psd
 *.pui
-*.pyroproject
 *.sample
 *.yml
 *.zip
