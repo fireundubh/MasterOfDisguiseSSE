@@ -30,39 +30,6 @@ FormList Property DisguiseMessageOff Auto
 FormList Property DisguiseMessageOn Auto
 FormList Property DisguiseSlots Auto
 
-; Disguise FormLists
-FormList Property DisguiseAlikr Auto
-FormList Property DisguiseBandits Auto
-FormList Property DisguiseBlades Auto
-FormList Property DisguiseClanVolkihar Auto
-FormList Property DisguiseCompanions Auto
-FormList Property DisguiseCultists Auto
-FormList Property DisguiseDaedric Auto
-FormList Property DisguiseDarkBrotherhood Auto
-FormList Property DisguiseDawnguard Auto
-FormList Property DisguiseForsworn Auto
-FormList Property DisguiseGuardFalkreath Auto
-FormList Property DisguiseGuardHjaalmarch Auto
-FormList Property DisguiseGuardMarkarth Auto
-FormList Property DisguiseGuardPale Auto
-FormList Property DisguiseGuardRavenRock Auto
-FormList Property DisguiseGuardRiften Auto
-FormList Property DisguiseGuardSolitude Auto
-FormList Property DisguiseGuardWhiterun Auto
-FormList Property DisguiseGuardWindhelm Auto
-FormList Property DisguiseGuardWinterhold Auto
-FormList Property DisguiseLegion Auto
-FormList Property DisguiseMoragTong Auto
-FormList Property DisguiseNecromancers Auto
-FormList Property DisguisePenitusOculatus Auto
-FormList Property DisguiseSilverHand Auto
-FormList Property DisguiseStormcloaks Auto
-FormList Property DisguiseThalmor Auto
-FormList Property DisguiseThievesGuild Auto
-FormList Property DisguiseVampires Auto
-FormList Property DisguiseVigil Auto
-FormList Property DisguiseWerewolves Auto
-
 ; States
 Bool[] Property ArrayDisguisesEnabled Auto
 
@@ -74,11 +41,8 @@ Int[] Property VsArrayExclusionsVigilOfStendarr Auto
 Int[] Property VsArrayExclusionsWindhelmGuard Auto
 
 ObjectReference[] Property ArraySlotsEquipped Auto
+Message[] Property MessageChain Auto
 
-; Tutorial
-Message Property DeveloperMessage Auto
-Message Property FactionArmorTutorial01 Auto
-Message Property FactionArmorTutorial02 Auto
 
 ; =============================================================================
 ; SCRIPT-LOCAL VARIABLES
@@ -407,19 +371,31 @@ EndFunction
 
 
 Function ShowTutorialMessages()
-	If !(DeveloperMessage.Show() == 0)
-		Return
-	EndIf
+	Int i = 0
 
-	If !(FactionArmorTutorial01.Show() == 0)
-		Return
-	EndIf
+	While i < MessageChain.Length
+		Message kMessage = MessageChain[i] as Message
 
-	If !(FactionArmorTutorial02.Show() == 0)
-		Return
-	EndIf
+		If !(kMessage.Show() == 0)
+			Return
+		EndIf
+
+		i += 1
+	EndWhile
 
 	Global_iTutorialCompleted.SetValueInt(1)
+EndFunction
+
+
+Function EnableDisguise(Int aiFactionIndex)
+	(DisguiseMessageOn.GetAt(aiFactionIndex) as Message).Show()
+	ArrayDisguisesEnabled[aiFactionIndex] = True
+EndFunction
+
+
+Function DisableDisguise(Int aiFactionIndex)
+	(DisguiseMessageOff.GetAt(aiFactionIndex) as Message).Show()
+	ArrayDisguisesEnabled[aiFactionIndex] = False
 EndFunction
 
 
@@ -474,9 +450,7 @@ Function TryAddDisguise(Int aiFactionIndex)
 		If TryAddToFaction(PlayerRef, kDisguiseFaction)
 			LogInfo("Added player to disguise faction: " + kDisguiseFaction)
 
-			(DisguiseMessageOn.GetAt(aiFactionIndex) as Message).Show()
-
-			ArrayDisguisesEnabled[aiFactionIndex] = True
+			EnableDisguise(aiFactionIndex)
 
 			If !(Global_iTutorialCompleted.GetValue() as Bool)
 				ShowTutorialMessages()
@@ -488,7 +462,7 @@ Function TryAddDisguise(Int aiFactionIndex)
 EndFunction
 
 
-Function RemoveDisguise(Faction akDisguiseFaction, Int akFactionIndex)
+Function RemoveDisguise(Faction akDisguiseFaction, Int aiFactionIndex)
 	; Removes the player from the specified disguise faction, notifies the player,
 	; and sets the respective Bool flag in ArrayDisguisesEnabled[] to FALSE
 
@@ -499,9 +473,7 @@ Function RemoveDisguise(Faction akDisguiseFaction, Int akFactionIndex)
 	If TryRemoveFromFaction(PlayerRef, akDisguiseFaction)
 		LogInfo("Player removed from disguise faction: " + akDisguiseFaction)
 
-		(DisguiseMessageOff.GetAt(akFactionIndex) as Message).Show()
-
-		ArrayDisguisesEnabled[akFactionIndex] = False
+		DisableDisguise(aiFactionIndex)
 
 		; TODO: if faction is a guard disguise, restore bounties and clear crime gold arrays
 	EndIf
