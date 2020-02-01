@@ -1,539 +1,634 @@
-ScriptName dubhDisguiseMCMQuestScript extends dubhDisguiseMCMHelper
+ScriptName dubhDisguiseMCMQuestScript Extends dubhDisguiseMCMHelper
 
-String ModName
+GlobalVariable Property Global_fBestSkillContribMax Auto
+GlobalVariable Property Global_fBountyPenaltyMult Auto
+GlobalVariable Property Global_fDetectionViewConeMCM Auto
+GlobalVariable Property Global_fEscapeDistance Auto
+GlobalVariable Property Global_fLOSDistanceMax Auto
+GlobalVariable Property Global_fLOSPenaltyClearMin Auto
+GlobalVariable Property Global_fLOSPenaltyDistanceFar Auto
+GlobalVariable Property Global_fLOSPenaltyDistanceMid Auto
+GlobalVariable Property Global_fLOSPenaltyDistortedMin Auto
+GlobalVariable Property Global_fLOSPenaltyPeripheralMin Auto
+GlobalVariable Property Global_fMobilityBonus Auto
+GlobalVariable Property Global_fMobilityPenalty Auto
+GlobalVariable Property Global_fRaceArgonian Auto
+GlobalVariable Property Global_fRaceArgonianVampire Auto
+GlobalVariable Property Global_fRaceBreton Auto
+GlobalVariable Property Global_fRaceBretonVampire Auto
+GlobalVariable Property Global_fRaceDarkElf Auto
+GlobalVariable Property Global_fRaceDarkElfVampire Auto
+GlobalVariable Property Global_fRaceHighElf Auto
+GlobalVariable Property Global_fRaceHighElfVampire Auto
+GlobalVariable Property Global_fRaceImperial Auto
+GlobalVariable Property Global_fRaceImperialVampire Auto
+GlobalVariable Property Global_fRaceKhajiit Auto
+GlobalVariable Property Global_fRaceKhajiitVampire Auto
+GlobalVariable Property Global_fRaceNord Auto
+GlobalVariable Property Global_fRaceNordVampire Auto
+GlobalVariable Property Global_fRaceOrc Auto
+GlobalVariable Property Global_fRaceOrcVampire Auto
+GlobalVariable Property Global_fRaceRedguard Auto
+GlobalVariable Property Global_fRaceRedguardVampire Auto
+GlobalVariable Property Global_fRaceWoodElf Auto
+GlobalVariable Property Global_fRaceWoodElfVampire Auto
+GlobalVariable Property Global_fScriptDistanceMax Auto
+GlobalVariable Property Global_fScriptSuspendTime Auto
+GlobalVariable Property Global_fScriptSuspendTimeBeforeAttack Auto
+GlobalVariable Property Global_fScriptUpdateFrequencyCompatibility Auto
+GlobalVariable Property Global_fScriptUpdateFrequencyMonitor Auto
+GlobalVariable Property Global_fSlotAmulet Auto
+GlobalVariable Property Global_fSlotBody Auto
+GlobalVariable Property Global_fSlotCirclet Auto
+GlobalVariable Property Global_fSlotFeet Auto
+GlobalVariable Property Global_fSlotHair Auto
+GlobalVariable Property Global_fSlotHands Auto
+GlobalVariable Property Global_fSlotRing Auto
+GlobalVariable Property Global_fSlotShield Auto
+GlobalVariable Property Global_fSlotWeaponLeft Auto
+GlobalVariable Property Global_fSlotWeaponRight Auto
+GlobalVariable Property Global_iAlwaysSucceedDremora Auto
+GlobalVariable Property Global_iAlwaysSucceedWerewolves Auto
+GlobalVariable Property Global_iCrimeFalkreath Auto
+GlobalVariable Property Global_iCrimeHjaalmarch Auto
+GlobalVariable Property Global_iCrimeImperial Auto
+GlobalVariable Property Global_iCrimeMarkarth Auto
+GlobalVariable Property Global_iCrimePale Auto
+GlobalVariable Property Global_iCrimeRavenRock Auto
+GlobalVariable Property Global_iCrimeRiften Auto
+GlobalVariable Property Global_iCrimeSolitude Auto
+GlobalVariable Property Global_iCrimeStormcloaks Auto
+GlobalVariable Property Global_iCrimeWhiterun Auto
+GlobalVariable Property Global_iCrimeWindhelm Auto
+GlobalVariable Property Global_iCrimeWinterhold Auto
+GlobalVariable Property Global_iDiscoveryEnabled Auto
+GlobalVariable Property Global_iDisguiseEnabledBandit Auto
+GlobalVariable Property Global_iDisguiseEssentialSlotBandit Auto
+GlobalVariable Property Global_iPapyrusLoggingEnabled Auto
+GlobalVariable Property Global_iVampireNightOnly Auto
+GlobalVariable Property Global_iVampireNightOnlyDayHourBegin Auto
+GlobalVariable Property Global_iVampireNightOnlyDayHourEnd Auto
 
-Actor Property Player Auto
+Actor Property PlayerRef Auto
+Faction Property DarkBrotherhoodFaction Auto
+Faction Property DisguiseFaction31 Auto  ; Bandits
+Faction Property ThievesGuildFaction Auto
+Formlist Property BaseFactions Auto
+Formlist Property DisguiseFactions Auto
+Formlist Property DisguiseFormlists Auto
+Formlist Property GuardFactions Auto
+Formlist Property TrackedBounties Auto
+Quest Property CompatibilityQuest Auto
+Quest Property DetectionQuest Auto
 
-Quest Property dubhDisguiseQuest Auto
-Quest Property dubhDetectionQuest Auto
-
-; Globals
-GlobalVariable Property fDetectionViewCone Auto
-GlobalVariable Property fDubhBountyPenaltyMult Auto
-GlobalVariable Property fDubhBestSkillContribMax Auto
-GlobalVariable Property fDubhEscapeDistance Auto
-GlobalVariable Property fDubhLOSDistanceMax Auto
-GlobalVariable Property fDubhLOSPenaltyClearMin Auto
-GlobalVariable Property fDubhLOSPenaltyDistanceFar Auto
-GlobalVariable Property fDubhLOSPenaltyDistanceMid Auto
-GlobalVariable Property fDubhLOSPenaltyDistortedMin Auto
-GlobalVariable Property fDubhLOSPenaltyPeripheralMin Auto
-GlobalVariable Property fDubhMobilityBonus Auto
-GlobalVariable Property fDubhMobilityPenalty Auto
-
-; Globals - Script
-GlobalVariable Property fDubhScriptDetectionSpeed Auto
-GlobalVariable Property fDubhScriptDisguiseSpeed Auto
-GlobalVariable Property fDubhScriptDistanceMax Auto
-GlobalVariable Property fDubhScriptSuspendTime Auto
-GlobalVariable Property fDubhScriptSuspendTimeBeforeAttack Auto
-
-; Globals - Race Scores
-GlobalVariable Property fDubhRaceArgonian Auto
-GlobalVariable Property fDubhRaceArgonianVampire Auto
-GlobalVariable Property fDubhRaceBreton Auto
-GlobalVariable Property fDubhRaceBretonVampire Auto
-GlobalVariable Property fDubhRaceDarkElf Auto
-GlobalVariable Property fDubhRaceDarkElfVampire Auto
-GlobalVariable Property fDubhRaceHighElf Auto
-GlobalVariable Property fDubhRaceHighElfVampire Auto
-GlobalVariable Property fDubhRaceImperial Auto
-GlobalVariable Property fDubhRaceImperialVampire Auto
-GlobalVariable Property fDubhRaceKhajiit Auto
-GlobalVariable Property fDubhRaceKhajiitVampire Auto
-GlobalVariable Property fDubhRaceNord Auto
-GlobalVariable Property fDubhRaceNordVampire Auto
-GlobalVariable Property fDubhRaceOrc Auto
-GlobalVariable Property fDubhRaceOrcVampire Auto
-GlobalVariable Property fDubhRaceRedguard Auto
-GlobalVariable Property fDubhRaceRedguardVampire Auto
-GlobalVariable Property fDubhRaceWoodElf Auto
-GlobalVariable Property fDubhRaceWoodElfVampire Auto
-
-; Globals - Equipment Scores
-GlobalVariable Property fDubhSlotAmulet Auto
-GlobalVariable Property fDubhSlotBody Auto
-GlobalVariable Property fDubhSlotCirclet Auto
-GlobalVariable Property fDubhSlotFeet Auto
-GlobalVariable Property fDubhSlotHair Auto
-GlobalVariable Property fDubhSlotHands Auto
-GlobalVariable Property fDubhSlotRing Auto
-GlobalVariable Property fDubhSlotShield Auto
-GlobalVariable Property fDubhSlotWeaponLeft Auto
-GlobalVariable Property fDubhSlotWeaponRight Auto
-
-; Globals - Debug
-GlobalVariable Property iDubhScriptDebugDisguise Auto
-GlobalVariable Property iDubhScriptDebugEnemy Auto
-GlobalVariable Property iDubhScriptDebugMonitor Auto
-GlobalVariable Property	iDubhDetectionEnabled Auto
-GlobalVariable Property iDubhAlwaysSucceedDremora Auto
-GlobalVariable Property iDubhAlwaysSucceedWerewolves Auto
-
-; Global Bounty Trackers
-GlobalVariable Property iDubhCrimeImperial Auto
-GlobalVariable Property iDubhCrimeStormcloaks Auto
-GlobalVariable Property iDubhCrimeFalkreath Auto
-GlobalVariable Property iDubhCrimeHjaalmarch Auto
-GlobalVariable Property iDubhCrimeMarkarth Auto
-GlobalVariable Property iDubhCrimePale Auto
-GlobalVariable Property iDubhCrimeRavenRock Auto
-GlobalVariable Property iDubhCrimeRiften Auto
-GlobalVariable Property iDubhCrimeSolitude Auto
-GlobalVariable Property iDubhCrimeWhiterun Auto
-GlobalVariable Property iDubhCrimeWindhelm Auto
-GlobalVariable Property iDubhCrimeWinterhold Auto
-
-; Formlists
-Formlist Property dubhBaseFactions Auto
-Formlist Property dubhDisguiseFactions Auto
-Formlist Property dubhGuardFactions Auto
-Formlist Property dubhExcludedDisguises Auto
-Formlist Property dubhTrackedBounties Auto
-
-; Bools
-;Bool bUninstalled = False
-Bool bDisguiseSystem = True
-Bool bDetectionSystem = True
-Bool bBanditDisguise = True
+Bool bCompatibilitySystem = True
+Bool bDiscoverySystem = True
 Bool bGuardsVsDarkBrotherhood = False
 Bool bGuardsVsThievesGuild = False
 
+String ModName
+
+; =============================================================================
+; FUNCTIONS
+; =============================================================================
+
+Function _Log(String asTextToPrint)
+	If Global_iPapyrusLoggingEnabled.GetValue() as Bool
+		Debug.Trace("Master of Disguise: dubhDisguiseMCMQuestScript> " + asTextToPrint)
+	EndIf
+EndFunction
+
+
+Function LogInfo(String asTextToPrint)
+	_Log("[INFO] " + asTextToPrint)
+EndFunction
+
+
+Function LogWarning(String asTextToPrint)
+	_Log("[WARN] " + asTextToPrint)
+EndFunction
+
+
+Function LogError(String asTextToPrint)
+	_Log("[ERRO] " + asTextToPrint)
+EndFunction
+
+
+Function Alias_DefineMCMToggleOptionModEvent(String asName, String asModEvent, Bool abInitialState = False, Int aiFlags = 0)
+	; when asName and asModEvent need to differ
+	RegisterForModEvent(asModEvent, "OnBooleanToggleClick")
+	DefineMCMToggleOption("$dubh" + asName, abInitialState, aiFlags, "$dubhHelp" + asName, asModEvent)
+EndFunction
+
+
+Function Alias_DefineMCMToggleModEvent(String asModEvent, Bool abInitialState = False, Int aiFlags = 0)
+	; when mod event name will be used as option name
+	RegisterForModEvent(asModEvent, "OnBooleanToggleClick")
+	DefineMCMToggleOption("$dubh" + asModEvent, abInitialState, aiFlags, "$dubhHelp" + asModEvent, asModEvent)
+EndFunction
+
+
+Function Alias_DefineMCMToggleOptionGlobal(String asName, GlobalVariable akGlobal, Int aiFlags = 0)
+	DefineMCMToggleOptionGlobal("$dubh" + asName, akGlobal, aiFlags, "$dubhHelp" + asName)
+EndFunction
+
+
+Function Alias_DefineMCMSliderOptionGlobal(String asName, GlobalVariable akGlobal, Float afMin, Float afMax, Float afInterval, Int aiFlags = 0)
+	DefineMCMSliderOptionGlobal("$dubh" + asName, akGlobal, akGlobal.GetValue(), afMin, afMax, afInterval, "$dubhHelp" + asName, "{2}", aiFlags)
+EndFunction
+
+Function Alias_DefineMCMMenuOptionGlobal(String asTextLabel, String asValuesCSV, GlobalVariable akGlobal, Int iDefault = 0)
+	DefineMCMMenuOptionGlobal("$dubh" + asTextLabel, asValuesCSV, akGlobal, iDefault, 0, "$dubhHelp" + asTextLabel, "")
+EndFunction
+
+
+Function ClearDisguiseFactions()
+	; Removes player from all disguise factions
+
+	Int i = 0
+
+	While i < DisguiseFactions.GetSize()
+		Faction kFaction = DisguiseFactions.GetAt(i) as Faction
+		If PlayerRef.IsInFaction(kFaction)
+			PlayerRef.RemoveFromFaction(kFaction)
+		EndIf
+		i += 1
+	EndWhile
+
+	LogInfo("Removed the player from all disguise factions.")
+EndFunction
+
+
+Function SetFactionRelationship(Formlist akFactions, Faction akTargetFaction, String asRelation)
+	; Sets relations between a faction and ALL factions in a formlist with string
+
+	Int i = 0
+
+	While i < akFactions.GetSize()
+		Faction kGuardFaction = akFactions.GetAt(i) as Faction
+
+		; skip thieves guild base/disguise factions
+		If i != 12 && akTargetFaction != ThievesGuildFaction
+			If asRelation == "Ally"
+				kGuardFaction.SetAlly(akTargetFaction)
+				LogInfo(akTargetFaction + " is now allies with " + kGuardFaction)
+			ElseIf asRelation == "Friend"
+				kGuardFaction.SetAlly(akTargetFaction, True, True)
+				LogInfo(akTargetFaction + " is now friends with " + kGuardFaction)
+			ElseIf asRelation == "Neutral"
+				kGuardFaction.SetEnemy(akTargetFaction, True, True)
+				LogInfo(akTargetFaction + " is now neutral with " + kGuardFaction)
+			ElseIf asRelation == "Enemy"
+				kGuardFaction.SetEnemy(akTargetFaction)
+				LogInfo(akTargetFaction + " is now enemies with " + kGuardFaction)
+			EndIf
+		EndIf
+
+		i += 1
+	EndWhile
+EndFunction
+
+
+Bool Function StartQuest(Quest akQuest)
+	; Starts quest with debug output
+
+	If !akQuest.IsStopped()
+		LogInfo("Could not start " + akQuest + " because the quest was not stopped")
+		Return False
+	EndIf
+
+	If akQuest.Start()
+		LogInfo("Successfully started quest: " + akQuest)
+		Return True
+	EndIf
+
+	LogWarning("Could not start " + akQuest + " because the quest was not stopped")
+	Return False
+EndFunction
+
+
+Bool Function StopQuest(Quest akQuest)
+	; Stops quest with debug output
+
+	If akQuest.IsRunning()
+		LogWarning("Could not stop " + akQuest + " because the quest was not running")
+		Return False
+	EndIf
+
+	Int _cycles = 0
+
+	akQuest.Stop()
+
+	While akQuest.IsRunning()
+		_cycles += 1
+	EndWhile
+
+	While akQuest.IsStopping()
+		_cycles += 1
+	EndWhile
+
+	If akQuest.IsStopped()
+		LogInfo("Successfully stopped: " + akQuest)
+		Return True
+	EndIf
+
+	LogWarning("Could not stop " + akQuest + " because the quest was not running")
+	Return False
+EndFunction
+; =============================================================================
+; EVENTS
+; =============================================================================
+
 Event OnConfigInit()
-	Pages = new String[6]
+	Pages = new String[7]
 	Pages[0] = "$dubhPageInformation"
-	Pages[1] = "$dubhPageDetection"
+	Pages[1] = "$dubhPageDiscovery"
 	Pages[2] = "$dubhPageScoring"
 	Pages[3] = "$dubhPageRace"
 	Pages[4] = "$dubhPageCrime"
 	Pages[5] = "$dubhPageAdvanced"
+	Pages[6] = "$dubhPageCheats"
 EndEvent
 
-Event OnPageReset(String page)
+Event OnPageReset(String asPageName)
 	SetCursorFillMode(TOP_TO_BOTTOM)
-	Int iOID
 
-	If page == ""
+	If asPageName == ""
 		LoadCustomContent("dubhDisguiseLogo.dds")
 		Return
 	Else
 		UnloadCustomContent()
 	EndIf
 
-	If page == "$dubhPageInformation"
+	If asPageName == "$dubhPageInformation"
 		SetCursorFillMode(TOP_TO_BOTTOM)
 
-		AddHeaderOption("$dubhHeadingAccolades")
-		DefineMCMParagraph("$dubhAccoladesText01")
-		DefineMCMParagraph("$dubhAccoladesText02")
-		DefineMCMParagraph("$dubhAccoladesText03")
-		DefineMCMParagraph("$dubhAccoladesText04")
-		DefineMCMParagraph("$dubhAccoladesText05")
-		DefineMCMParagraph("$dubhAccoladesText06")
+		AddHeaderOption("$dubhHeadingInformationAccolades")
+		DefineMCMParagraph("$dubhInformationAccoladesText01")
+		DefineMCMParagraph("$dubhInformationAccoladesText02")
+		DefineMCMParagraph("$dubhInformationAccoladesText03")
+		DefineMCMParagraph("$dubhInformationAccoladesText04")
+		DefineMCMParagraph("$dubhInformationAccoladesText05")
+		DefineMCMParagraph("$dubhInformationAccoladesText06")
 
 		AddEmptyOption()
 
-		AddHeaderOption("$dubhHeadingCredits")
-		DefineMCMParagraph("$dubhCredits01")
-		DefineMCMParagraph("$dubhCredits02")
-		DefineMCMParagraph("$dubhCredits03")
+		AddHeaderOption("$dubhHeadingInformationCredits")
+		DefineMCMParagraph("$dubhInformationCredits01")
+		DefineMCMParagraph("$dubhInformationCredits02")
+		DefineMCMParagraph("$dubhInformationCredits03")
 
 		SetCursorPosition(1)
 
-		AddHeaderOption("$dubhHeadingSupport")
+		AddHeaderOption("$dubhHeadingInformationSupport")
 
-		DefineMCMParagraph("$dubhSupportText01")
-		DefineMCMParagraph("$dubhSupportText02")
-		DefineMCMParagraph("$dubhSupportText03")
-
-		AddEmptyOption()
-
-		DefineMCMParagraph("$dubhSupportText04")
-		DefineMCMParagraph("$dubhSupportText05")
-		DefineMCMParagraph("$dubhSupportText06")
+		DefineMCMParagraph("$dubhInformationSupportText01")
+		DefineMCMParagraph("$dubhInformationSupportText02")
+		DefineMCMParagraph("$dubhInformationSupportText03")
 
 		AddEmptyOption()
 
-		AddHeaderOption("$dubhHeadingPermissions")
-		DefineMCMParagraph("$dubhPermissions01")
-		DefineMCMParagraph("$dubhPermissions02")
+		DefineMCMParagraph("$dubhInformationSupportText04")
+		DefineMCMParagraph("$dubhInformationSupportText05")
 
-	ElseIf page == "$dubhPageDetection"
+		AddEmptyOption()
+
+		AddHeaderOption("$dubhHeadingInformationPermissions")
+		DefineMCMParagraph("$dubhInformationPermissions01")
+		DefineMCMParagraph("$dubhInformationPermissions02")
+
+	ElseIf asPageName == "$dubhPageDiscovery"
 		SetCursorFillMode(TOP_TO_BOTTOM)
 
-		AddHeaderOption("$dubhHeadingFov")
-		DefineMCMSliderOptionGlobal("$dubhFovDiameter", fDetectionViewCone, fDetectionViewCone.GetValue(), 30.0, 360.0, 5.0, "$dubhHelpFovDiameter", "{2}")
+		AddHeaderOption("$dubhHeadingDiscoveryViewCone")
+		Alias_DefineMCMSliderOptionGlobal("DiscoveryOptionViewCone", Global_fDetectionViewConeMCM, 30.0, 360.0, 5.0)
 
 		AddEmptyOption()
 
-		AddHeaderOption("$dubhHeadingLosDistance")
-		DefineMCMSliderOptionGlobal("$dubhLosMaxDistance", fDubhLOSDistanceMax, fDubhLOSDistanceMax.GetValue(), 1024.0, fDubhScriptDistanceMax.GetValue(), 256.0, "$dubhHelpLosMaxDistance", "{2}")
+		AddHeaderOption("$dubhHeadingDiscoveryLos")
+		Alias_DefineMCMSliderOptionGlobal("DiscoveryOptionLosMax",   Global_fLOSDistanceMax, 1024.0, Global_fScriptDistanceMax.GetValue(), 256.0)
 
 		AddEmptyOption()
 
-		AddHeaderOption("$dubhHeadingLosPenalties")
-		DefineMCMSliderOptionGlobal("$dubhLosDistanceClear", 			fDubhLOSPenaltyClearMin, 			fDubhLOSPenaltyClearMin.GetValue(), 			0.0, 1.0, 0.05, "$dubhHelpLosDistanceClear", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhLosDistanceDistorted", 	fDubhLOSPenaltyDistortedMin, 	fDubhLOSPenaltyDistortedMin.GetValue(), 	0.0, 1.0, 0.05, "$dubhHelpLosDistanceDistorted", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhLosDistancePeripheral", fDubhLOSPenaltyPeripheralMin, fDubhLOSPenaltyPeripheralMin.GetValue(), 	0.0, 1.0, 0.05, "$dubhHelpLosDistancePeripheral", "{2}")
+		AddHeaderOption("$dubhHeadingDiscoveryLosPenalties")
+		Alias_DefineMCMSliderOptionGlobal("DiscoveryOptionLosClear",      Global_fLOSPenaltyClearMin,      0.0, 1.0, 0.05)
+		Alias_DefineMCMSliderOptionGlobal("DiscoveryOptionLosDistorted",  Global_fLOSPenaltyDistortedMin,  0.0, 1.0, 0.05)
+		Alias_DefineMCMSliderOptionGlobal("DiscoveryOptionLosPeripheral", Global_fLOSPenaltyPeripheralMin, 0.0, 1.0, 0.05)
 
 		SetCursorPosition(1)
 
-		AddHeaderOption("$dubhHeadingDetection")
-		DefineMCMToggleOptionGlobal("$dubhDetectionDremoraToggle", iDubhAlwaysSucceedDremora, 0, "$dubhHelpDetectionDremoraToggle")
-		DefineMCMToggleOptionGlobal("$dubhDetectionWerewolvesToggle", iDubhAlwaysSucceedWerewolves, 0, "$dubhHelpDetectionWerewolvesToggle")
+		AddHeaderOption("$dubhHeadingDiscoveryBiWinning")
+		Alias_DefineMCMToggleOptionGlobal("DiscoveryOptionDremora",     Global_iAlwaysSucceedDremora)
+		Alias_DefineMCMToggleOptionGlobal("DiscoveryOptionWerewolves",  Global_iAlwaysSucceedWerewolves)
 
-	ElseIf page == "$dubhPageScoring"
+		AddEmptyOption()
+
+		AddHeaderOption("$dubhHeadingDiscoveryVN")
+		Alias_DefineMCMToggleOptionGlobal("DiscoveryOptionVN",          Global_iVampireNightOnly)
+		Alias_DefineMCMSliderOptionGlobal("DiscoveryOptionVNDayBegins", Global_iVampireNightOnlyDayHourBegin, 0.0, 24.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("DiscoveryOptionVNDayEnds",   Global_iVampireNightOnlyDayHourEnd,   0.0, 24.0, 1.0)
+
+	ElseIf asPageName == "$dubhPageScoring"
 		SetCursorFillMode(TOP_TO_BOTTOM)
 
-		AddHeaderOption("$dubhHeadingBestSkill")
-		DefineMCMSliderOptionGlobal("$dubhBestSkillMax", fDubhBestSkillContribMax, fDubhBestSkillContribMax.GetValue(), 0.0, 100.0, 10.0, "$dubhHelpBestSkillMax", "{2}")
+		AddHeaderOption("$dubhHeadingScoringBestSkill")
+		Alias_DefineMCMSliderOptionGlobal("ScoringOptionBestSkillMax",  Global_fBestSkillContribMax, 0.0, 100.0, 10.0)
 
 		AddEmptyOption()
 
-		AddHeaderOption("$dubhHeadingMobility")
-		DefineMCMSliderOptionGlobal("$dubhMobilityBonus", 		fDubhMobilityBonus, 	fDubhMobilityBonus.GetValue(), 		1.0, 1.5, 0.05, "$dubhHelpMobilityBonus", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhMobilityPenalty", 	fDubhMobilityPenalty, fDubhMobilityPenalty.GetValue(), 	0.5, 1.0, 0.05,	"$dubhHelpMobilityPenalty", "{2}")
+		AddHeaderOption("$dubhHeadingScoringMobility")
+		Alias_DefineMCMSliderOptionGlobal("ScoringOptionMobilityBonus",   Global_fMobilityBonus,   1.0, 1.5, 0.05)
+		Alias_DefineMCMSliderOptionGlobal("ScoringOptionMobilityPenalty", Global_fMobilityPenalty, 0.5, 1.0, 0.05)
 
 		AddEmptyOption()
 
-		AddHeaderOption("$dubhHeadingWeapons")
-		DefineMCMSliderOptionGlobal("$dubhWeaponsHandLeft", 	fDubhSlotWeaponLeft, 	fDubhSlotWeaponLeft.GetValue(), 	0.0, 100.0, 1.0,	"$dubhHelpWeaponsHandLeft", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhWeaponsHandRight", 	fDubhSlotWeaponRight, fDubhSlotWeaponRight.GetValue(), 	0.0, 100.0, 1.0, 	"$dubhHelpWeaponsHandRight", "{2}")
+		AddHeaderOption("$dubhHeadingScoringWeapons")
+		Alias_DefineMCMSliderOptionGlobal("ScoringOptionWeaponLeft",    Global_fSlotWeaponLeft,      0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("ScoringOptionWeaponRight",   Global_fSlotWeaponRight,     0.0, 100.0, 1.0)
 
 		SetCursorPosition(1)
 
-		AddHeaderOption("$dubhHeadingEquipment")
-		DefineMCMSliderOptionGlobal("$dubhEquipmentAmulet", 	fDubhSlotAmulet, 	fDubhSlotAmulet.GetValue(), 	0.0, 100.0, 1.0, 	"$dubhHelpEquipmentAmulet", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhEquipmentBody", 		fDubhSlotBody, 		fDubhSlotBody.GetValue(), 		0.0, 100.0, 1.0, 	"$dubhHelpEquipmentBody", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhEquipmentCirclet", 	fDubhSlotCirclet, fDubhSlotCirclet.GetValue(), 	0.0, 100.0, 1.0, 	"$dubhHelpEquipmentCirclet", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhEquipmentFeet", 		fDubhSlotFeet, 		fDubhSlotFeet.GetValue(), 		0.0, 100.0, 1.0, 	"$dubhHelpEquipmentFeet", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhEquipmentHair", 		fDubhSlotHair, 		fDubhSlotHair.GetValue(), 		0.0, 100.0, 1.0, 	"$dubhHelpEquipmentHair", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhEquipmentHands", 		fDubhSlotHands, 	fDubhSlotHands.GetValue(),		0.0, 100.0, 1.0, 	"$dubhHelpEquipmentHands", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhEquipmentRing", 		fDubhSlotRing, 		fDubhSlotRing.GetValue(), 		0.0, 100.0, 1.0, 	"$dubhHelpEquipmentRing", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhEquipmentShield",		fDubhSlotShield,	fDubhSlotShield.GetValue(),		0.0, 100.0, 1.0,	"$dubhHelpEquipmentShield", "{2}")
+		AddHeaderOption("$dubhHeadingScoringEquipment")
+		Alias_DefineMCMSliderOptionGlobal("ScoringOptionAmulet",        Global_fSlotAmulet,          0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("ScoringOptionBody",          Global_fSlotBody,            0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("ScoringOptionCirclet",       Global_fSlotCirclet,         0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("ScoringOptionFeet",          Global_fSlotFeet,            0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("ScoringOptionHair",          Global_fSlotHair,            0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("ScoringOptionHands",         Global_fSlotHands,           0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("ScoringOptionRing",          Global_fSlotRing,            0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("ScoringOptionShield",        Global_fSlotShield,          0.0, 100.0, 1.0)
 
-	ElseIf page == "$dubhPageRace"
+	ElseIf asPageName == "$dubhPageRace"
 		SetCursorFillMode(TOP_TO_BOTTOM)
 
 		AddHeaderOption("$dubhHeadingRaceModifiers1")
-		DefineMCMSliderOptionGlobal("$dubhRaceAltmer", 		fDubhRaceHighElf, 	fDubhRaceHighElf.GetValue(), 		0.0, 100.0, 1.0, 	"$dubhHelpRaceAltmer", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhRaceArgonian", 	fDubhRaceArgonian, 	fDubhRaceArgonian.GetValue(), 	0.0, 100.0, 1.0, 	"$dubhHelpRaceArgonian", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhRaceBosmer", 		fDubhRaceWoodElf, 	fDubhRaceWoodElf.GetValue(), 		0.0, 100.0, 1.0, 	"$dubhHelpRaceBosmer", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhRaceBreton", 		fDubhRaceBreton, 		fDubhRaceBreton.GetValue(), 		0.0, 100.0, 1.0, 	"$dubhHelpRaceBreton", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhRaceDunmer", 		fDubhRaceDarkElf, 	fDubhRaceDarkElf.GetValue(), 		0.0, 100.0, 1.0, 	"$dubhHelpRaceDunmer", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhRaceImperial", 	fDubhRaceImperial, 	fDubhRaceImperial.GetValue(), 	0.0, 100.0, 1.0, 	"$dubhHelpRaceImperial", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhRaceKhajiit", 	fDubhRaceKhajiit, 	fDubhRaceKhajiit.GetValue(), 		0.0, 100.0, 1.0, 	"$dubhHelpRaceKhajiit", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhRaceNord", 			fDubhRaceNord, 			fDubhRaceNord.GetValue(), 			0.0, 100.0, 1.0, 	"$dubhHelpRaceNord", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhRaceOrc", 			fDubhRaceOrc, 			fDubhRaceOrc.GetValue(), 				0.0, 100.0, 1.0, 	"$dubhHelpRaceOrc", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhRaceRedguard", 	fDubhRaceRedguard, 	fDubhRaceRedguard.GetValue(),		0.0, 100.0, 1.0,	"$dubhHelpRaceRedguard", "{2}")
+		Alias_DefineMCMSliderOptionGlobal("RaceOptionAltmer",           Global_fRaceHighElf,         0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("RaceOptionArgonian",         Global_fRaceArgonian,        0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("RaceOptionBosmer",           Global_fRaceWoodElf,         0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("RaceOptionBreton",           Global_fRaceBreton,          0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("RaceOptionDunmer",           Global_fRaceDarkElf,         0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("RaceOptionImperial",         Global_fRaceImperial,        0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("RaceOptionKhajiit",          Global_fRaceKhajiit,         0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("RaceOptionNord",             Global_fRaceNord,            0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("RaceOptionOrc",              Global_fRaceOrc,             0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("RaceOptionRedguard",         Global_fRaceRedguard,        0.0, 100.0, 1.0)
 
 		SetCursorPosition(1)
 
 		AddHeaderOption("$dubhHeadingRaceModifiers2")
-		DefineMCMSliderOptionGlobal("$dubhRaceVampireAltmer", 	fDubhRaceHighElfVampire, 	fDubhRaceHighElfVampire.GetValue(), 	0.0, 100.0, 1.0, 	"$dubhHelpRaceVampireAltmer", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhRaceVampireArgonian", fDubhRaceArgonianVampire, fDubhRaceArgonianVampire.GetValue(), 	0.0, 100.0, 1.0, 	"$dubhHelpRaceVampireArgonian", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhRaceVampireBosmer", 	fDubhRaceWoodElfVampire, 	fDubhRaceWoodElfVampire.GetValue(), 	0.0, 100.0, 1.0, 	"$dubhHelpRaceVampireBosmer", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhRaceVampireBreton", 	fDubhRaceBretonVampire, 	fDubhRaceBretonVampire.GetValue(), 		0.0, 100.0, 1.0, 	"$dubhHelpRaceVampireBreton", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhRaceVampireDunmer", 	fDubhRaceDarkElfVampire, 	fDubhRaceDarkElfVampire.GetValue(), 	0.0, 100.0, 1.0, 	"$dubhHelpRaceVampireDunmer", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhRaceVampireImperial", fDubhRaceImperialVampire, fDubhRaceImperialVampire.GetValue(), 	0.0, 100.0, 1.0, 	"$dubhHelpRaceVampireImperial", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhRaceVampireKhajiit", 	fDubhRaceKhajiitVampire, 	fDubhRaceKhajiitVampire.GetValue(), 	0.0, 100.0, 1.0, 	"$dubhHelpRaceVampireKhajiit", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhRaceVampireNord", 		fDubhRaceNordVampire, 		fDubhRaceNordVampire.GetValue(), 			0.0, 100.0, 1.0, 	"$dubhHelpRaceVampireNord", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhRaceVampireOrc", 			fDubhRaceOrcVampire, 			fDubhRaceOrcVampire.GetValue(), 			0.0, 100.0, 1.0,	"$dubhHelpRaceVampireOrc", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhRaceVampireRedguard", fDubhRaceRedguardVampire, fDubhRaceRedguardVampire.GetValue(), 	0.0, 100.0, 1.0, 	"$dubhHelpRaceVampireRedguard", "{2}")
+		Alias_DefineMCMSliderOptionGlobal("RaceOptionVampireAltmer",    Global_fRaceHighElfVampire,  0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("RaceOptionVampireArgonian",  Global_fRaceArgonianVampire, 0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("RaceOptionVampireBosmer",    Global_fRaceWoodElfVampire,  0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("RaceOptionVampireBreton",    Global_fRaceBretonVampire,   0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("RaceOptionVampireDunmer",    Global_fRaceDarkElfVampire,  0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("RaceOptionVampireImperial",  Global_fRaceImperialVampire, 0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("RaceOptionVampireKhajiit",   Global_fRaceKhajiitVampire,  0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("RaceOptionVampireNord",      Global_fRaceNordVampire,     0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("RaceOptionVampireOrc",       Global_fRaceOrcVampire,      0.0, 100.0, 1.0)
+		Alias_DefineMCMSliderOptionGlobal("RaceOptionVampireRedguard",  Global_fRaceRedguardVampire, 0.0, 100.0, 1.0)
 
-	ElseIf page == "$dubhPageCrime"
+	ElseIf asPageName == "$dubhPageCrime"
 		SetCursorFillMode(TOP_TO_BOTTOM)
 
-		AddHeaderOption("$dubhHeadingBountyPenalty")
-		DefineMCMSliderOptionGlobal("$dubhBountyPenaltyMult", fDubhBountyPenaltyMult, fDubhBountyPenaltyMult.GetValue(), 0.0, 1.0, 0.01, "$dubhHelpBountyPenaltyMult", "{2}")
+		AddHeaderOption("$dubhHeadingCrimeBountyPenalty")
+		Alias_DefineMCMSliderOptionGlobal("CrimeOptionBountyMult", Global_fBountyPenaltyMult, 0.0, 1.0, 0.01, 1)
 
 		AddEmptyOption()
 
-		AddHeaderOption("$dubhHeadingToggles")
-		RegisterForModEvent("dubhToggleDisguiseBandit", "OnBooleanToggleClick")
-		DefineMCMToggleOption("$dubhLabelToggleDisguiseBandit", bBanditDisguise, 0, "$dubhHelpToggleDisguiseBandit", "dubhToggleDisguiseBandit")
-
-		RegisterForModEvent("dubhToggleGuardsVsDarkBrotherhood", "OnBooleanToggleClick")
-		DefineMCMToggleOption("$dubhLabelToggleGuardsVsDarkBrotherhood", bGuardsVsDarkBrotherhood,	0, "$dubhHelpToggleGuardsVsDarkBrotherhood", "dubhToggleGuardsVsDarkBrotherhood")
-
-		RegisterForModEvent("dubhToggleGuardsVsThievesGuild", "OnBooleanToggleClick")
-		DefineMCMToggleOption("$dubhLabelToggleGuardsVsThievesGuild", bGuardsVsThievesGuild, 0, "$dubhHelpToggleGuardsVsThievesGuild", "dubhToggleGuardsVsThievesGuild")
+		AddHeaderOption("$dubhHeadingCrimeToggles")
+		Alias_DefineMCMToggleOptionGlobal(  "CrimeOptionBandits", Global_iDisguiseEnabledBandit)
+		Alias_DefineMCMMenuOptionGlobal(    "CrimeOptionBanditSlot", "$dubhSlot0,$dubhSlot1,$dubhSlot2,$dubhSlot3,$dubhSlot4,$dubhSlot5,$dubhSlot6,$dubhSlot7,$dubhSlot8,$dubhSlot9", Global_iDisguiseEssentialSlotBandit, 1)
+		Alias_DefineMCMToggleOptionModEvent("CrimeOptionGuardsVsDB", "dubhToggleGuardsVsDarkBrotherhood", bGuardsVsDarkBrotherhood)
+		Alias_DefineMCMToggleOptionModEvent("CrimeOptionGuardsVsTG", "dubhToggleGuardsVsThievesGuild",    bGuardsVsThievesGuild)
 
 		AddEmptyOption()
 
-		AddHeaderOption("$dubhHeadingBountyBoardShort")
-		DefineMCMSliderOptionGlobal("$dubhCrimeImperial", 		iDubhCrimeImperial, 		iDubhCrimeImperial.GetValue(), 		0.0, 99999.0, 1.0, "$dubhHelpCrimeImperial", "{2}", 1)
-		DefineMCMSliderOptionGlobal("$dubhCrimeStormcloaks",	iDubhCrimeStormcloaks, 	iDubhCrimeStormcloaks.GetValue(), 0.0, 99999.0, 1.0, "$dubhHelpCrimeStormcloaks", "{2}", 1)
+		AddHeaderOption("$dubhHeadingCrimeEmpireLovesLists")
+		Alias_DefineMCMSliderOptionGlobal("CrimeOptionImperial",    Global_iCrimeImperial,    0.0, 99999.0, 1.0, 1)
+		Alias_DefineMCMSliderOptionGlobal("CrimeOptionStormcloaks", Global_iCrimeStormcloaks, 0.0, 99999.0, 1.0, 1)
 
 		SetCursorPosition(1)
 
-		AddHeaderOption("$dubhHeadingBountyBoardLong")
-		DefineMCMSliderOptionGlobal("$dubhCrimeFalkreath", 		iDubhCrimeFalkreath, 		iDubhCrimeFalkreath.GetValue(), 	0.0, 99999.0, 1.0, "$dubhHelpCrimeFalkreath", "{2}", 1)
-		DefineMCMSliderOptionGlobal("$dubhCrimeHjaalmarch", 	iDubhCrimeHjaalmarch,		iDubhCrimeHjaalmarch.GetValue(), 	0.0, 99999.0, 1.0, "$dubhHelpCrimeHjaalmarch", "{2}", 1)
-		DefineMCMSliderOptionGlobal("$dubhCrimeMarkarth", 		iDubhCrimeMarkarth,			iDubhCrimeMarkarth.GetValue(),		0.0, 99999.0, 1.0, "$dubhHelpCrimeMarkarth", "{2}", 1)
-		DefineMCMSliderOptionGlobal("$dubhCrimePale", 				iDubhCrimePale, 				iDubhCrimePale.GetValue(), 				0.0, 99999.0, 1.0, "$dubhHelpCrimePale", "{2}", 1)
-		DefineMCMSliderOptionGlobal("$dubhCrimeRavenRock", 		iDubhCrimeRavenRock, 		iDubhCrimeRavenRock.GetValue(), 	0.0, 99999.0, 1.0, "$dubhHelpCrimeRavenRock", "{2}", 1)
-		DefineMCMSliderOptionGlobal("$dubhCrimeRiften", 			iDubhCrimeRiften, 			iDubhCrimeRiften.GetValue(), 			0.0, 99999.0, 1.0, "$dubhHelpCrimeRiften", "{2}", 1)
-		DefineMCMSliderOptionGlobal("$dubhCrimeSolitude", 		iDubhCrimeSolitude, 		iDubhCrimeSolitude.GetValue(), 		0.0, 99999.0, 1.0, "$dubhHelpCrimeSolitude", "{2}", 1)
-		DefineMCMSliderOptionGlobal("$dubhCrimeWhiterun", 		iDubhCrimeWhiterun, 		iDubhCrimeWhiterun.GetValue(), 		0.0, 99999.0, 1.0, "$dubhHelpCrimeWhiterun", "{2}", 1)
-		DefineMCMSliderOptionGlobal("$dubhCrimeWindhelm", 		iDubhCrimeWindhelm, 		iDubhCrimeWindhelm.GetValue(), 		0.0, 99999.0, 1.0, "$dubhHelpCrimeWindhelm", "{2}", 1)
-		DefineMCMSliderOptionGlobal("$dubhCrimeWinterhold", 	iDubhCrimeWinterhold, 	iDubhCrimeWinterhold.GetValue(), 	0.0, 99999.0, 1.0, "$dubhHelpCrimeWinterhold", "{2}", 1)
+		AddHeaderOption("$dubhHeadingCrimeTrackedBounties")
+		Alias_DefineMCMSliderOptionGlobal("CrimeOptionFalkreath",   Global_iCrimeFalkreath,   0.0, 99999.0, 1.0, 1)
+		Alias_DefineMCMSliderOptionGlobal("CrimeOptionHjaalmarch",  Global_iCrimeHjaalmarch,  0.0, 99999.0, 1.0, 1)
+		Alias_DefineMCMSliderOptionGlobal("CrimeOptionMarkarth",    Global_iCrimeMarkarth,    0.0, 99999.0, 1.0, 1)
+		Alias_DefineMCMSliderOptionGlobal("CrimeOptionPale",        Global_iCrimePale,        0.0, 99999.0, 1.0, 1)
+		Alias_DefineMCMSliderOptionGlobal("CrimeOptionRavenRock",   Global_iCrimeRavenRock,   0.0, 99999.0, 1.0, 1)
+		Alias_DefineMCMSliderOptionGlobal("CrimeOptionRiften",      Global_iCrimeRiften,      0.0, 99999.0, 1.0, 1)
+		Alias_DefineMCMSliderOptionGlobal("CrimeOptionSolitude",    Global_iCrimeSolitude,    0.0, 99999.0, 1.0, 1)
+		Alias_DefineMCMSliderOptionGlobal("CrimeOptionWhiterun",    Global_iCrimeWhiterun,    0.0, 99999.0, 1.0, 1)
+		Alias_DefineMCMSliderOptionGlobal("CrimeOptionWindhelm",    Global_iCrimeWindhelm,    0.0, 99999.0, 1.0, 1)
+		Alias_DefineMCMSliderOptionGlobal("CrimeOptionWinterhold",  Global_iCrimeWinterhold,  0.0, 99999.0, 1.0, 1)
 
-	ElseIf page == "$dubhPageAdvanced"
+	ElseIf asPageName == "$dubhPageAdvanced"
 		SetCursorFillMode(TOP_TO_BOTTOM)
 
-		AddHeaderOption("$dubhHeadingWatchRate")
-		DefineMCMSliderOptionGlobal("$dubhWatchRateSeconds", fDubhScriptSuspendTime, fDubhScriptSuspendTime.GetValue(), 0.0, 60.0, 1.0, "$dubhHelpWatchRate", "{2}")
+		AddHeaderOption("$dubhHeadingAdvancedWatchRate")
+		Alias_DefineMCMSliderOptionGlobal("AdvancedOptionWatchRate", Global_fScriptSuspendTime, 0.0, 60.0, 1.0)
 
 		AddEmptyOption()
 
-		AddHeaderOption("$dubhHeadingPerfDisguise")
-		DefineMCMSliderOptionGlobal("$dubhPerfUpdateRate",		fDubhScriptDisguiseSpeed, fDubhScriptDisguiseSpeed.GetValue(), 0.0, 10.0, 1.0, "$dubhHelpPerfDisguiseUpdateRate", "{2}")
+		AddHeaderOption("$dubhHeadingAdvancedDiscovery")
+		Alias_DefineMCMSliderOptionGlobal("AdvancedOptionDiscoveryMax", Global_fScriptDistanceMax, 0.0, Global_fEscapeDistance.GetValue(), 256.0)
+		Alias_DefineMCMSliderOptionGlobal("AdvancedOptionUpdateRateDiscovery", Global_fScriptUpdateFrequencyMonitor, 0.0, 30.0, 1.0)
 
 		AddEmptyOption()
 
-		AddHeaderOption("$dubhHeadingPerfDetection")
-		DefineMCMSliderOptionGlobal("$dubhPerfDetectionDistanceMax",	fDubhScriptDistanceMax,			fDubhScriptDistanceMax.GetValue(), 		0.0, fDubhEscapeDistance.GetValue(), 	256.0, 	"$dubhHelpPerfDetectionDistanceMax", "{2}")
-		DefineMCMSliderOptionGlobal("$dubhPerfUpdateRate",						fDubhScriptDetectionSpeed, 	fDubhScriptDetectionSpeed.GetValue(), 0.0, 10.0, 														1.0, 		"$dubhHelpPerfDetectionUpdateRate", "{2}")
+		AddHeaderOption("$dubhHeadingAdvancedCompatibility")
+		Alias_DefineMCMSliderOptionGlobal("AdvancedOptionUpdateRateCompatibility", Global_fScriptUpdateFrequencyCompatibility, 0.0, 30.0, 1.0)
 
 		AddEmptyOption()
 
-		AddHeaderOption("$dubhHeadingPerfEnemies")
-		DefineMCMSliderOptionGlobal("$dubhPerfEnemiesEscapeDistance", fDubhEscapeDistance, fDubhEscapeDistance.GetValue(), fDubhScriptDistanceMax.GetValue(), 8192.0, 256.0, "$dubhHelpPerfEnemiesEscapeDistance", "{2}")
+		AddHeaderOption("$dubhHeadingAdvancedEnemies")
+		Alias_DefineMCMSliderOptionGlobal("AdvancedOptionEscapeDistance", Global_fEscapeDistance, Global_fScriptDistanceMax.GetValue(), 8192.0, 256.0)
 
 		SetCursorPosition(1)
 
-		AddHeaderOption("$dubhHeadingCombatDelay")
-		DefineMCMSliderOptionGlobal("$dubhCombatDelaySeconds", fDubhScriptSuspendTimeBeforeAttack, fDubhScriptSuspendTimeBeforeAttack.GetValue(), 0.0, 60.0, 1.0, "$dubhHelpCombatDelay", "{2}")
+		AddHeaderOption("$dubhHeadingAdvancedCombatDelay")
+		Alias_DefineMCMSliderOptionGlobal("AdvancedOptionCombatDelay", Global_fScriptSuspendTimeBeforeAttack, 0.0, 60.0, 1.0)
 
 		AddEmptyOption()
 
-		AddHeaderOption("$dubhHeadingDebug")
-		DefineMCMToggleOptionGlobal("$dubhDebugDetection", iDubhScriptDebugMonitor, 0, "$dubhHelpDebugDetection")
-		DefineMCMToggleOptionGlobal("$dubhDebugDisguises", iDubhScriptDebugDisguise, 0, "$dubhHelpDebugDisguises")
-		DefineMCMToggleOptionGlobal("$dubhDebugEnemies", iDubhScriptDebugEnemy, 0, "$dubhHelpDebugEnemies")
+		AddHeaderOption("$dubhHeadingAdvancedDebug")
+		Alias_DefineMCMToggleOptionGlobal("AdvancedOptionPapyrusLogging", Global_iPapyrusLoggingEnabled)
 
 		AddEmptyOption()
 
-		AddHeaderOption("$dubhHeadingSetup")
-		RegisterForModEvent("dubhToggleDisguiseSystem", "OnBooleanToggleClick")
-		DefineMCMToggleOption("$dubhLabelToggleDisguiseSystem", bDisguiseSystem, 0, "$dubhHelpToggleDisguiseSystem", "dubhToggleDisguiseSystem")
+		AddHeaderOption("$dubhHeadingAdvancedSetup")
+		Alias_DefineMCMToggleOptionModEvent("AdvancedOptionCompatibility", "ToggleDynamicCompatibility", bCompatibilitySystem)
+		Alias_DefineMCMToggleOptionModEvent("AdvancedOptionDiscoverySystem", "ToggleDiscoverySystem", bDiscoverySystem)
 
-		RegisterForModEvent("dubhToggleDetectionSystem", "OnBooleanToggleClick")
-		DefineMCMToggleOption("$dubhLabelToggleDetectionSystem", bDetectionSystem, 0, "$dubhHelpToggleDetectionSystem", "dubhToggleDetectionSystem")
+	ElseIf asPageName == "$dubhPageCheats"
+		SetCursorFillMode(TOP_TO_BOTTOM)
 
-		;RegisterForModEvent("dubhUninstall", "OnBooleanToggleClick")
-		;DefineMCMToggleOption("$dubhLabelUninstall", bUninstalled, 0, "$dubhHelpUninstall", "dubhUninstall")
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise01", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise02", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise03", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise04", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise05", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise06", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise07", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise08", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise09", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise10", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise11", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise12", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise13", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise14", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise15", False)
+
+		SetCursorPosition(1)
+
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise16", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise17", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise18", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise19", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise20", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise21", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise22", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise23", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise24", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise25", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise26", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise27", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise28", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise29", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise30", False)
+		Alias_DefineMCMToggleModEvent("CheatAddDisguise31", False)
+
 	EndIf
 EndEvent
 
-; -----------------------------------------------------------------------------
-; Sends a message to the Papyrus log
-; -----------------------------------------------------------------------------
-Function Log(String msgTrace)
-	If iDubhScriptDebugDisguise.GetValueInt() == 1
-		Debug.Trace("Master of Disguise: MCM> " + msgTrace)
-	EndIf
-EndFunction
 
-; -----------------------------------------------------------------------------
-; Removes player from all disguise factions
-; -----------------------------------------------------------------------------
-Bool Function ClearDisguiseFactions()
-	Int iIndex = 0
-	While iIndex < dubhDisguiseFactions.GetSize()
-		Faction currentDisguiseFaction = dubhDisguiseFactions.GetAt(iIndex) as Faction
-		If Player.IsInFaction(currentDisguiseFaction)
-			Player.RemoveFromFaction(currentDisguiseFaction)
-		EndIf
-		iIndex += 1
-	EndWhile
-	Log("Removed the player from all disguise factions.")
-	Return True
-EndFunction
+Event OnBooleanToggleClick(string asEventName, string strArg, float numArg, Form sender)
+	FormList kForms = None
 
-; -----------------------------------------------------------------------------
-; Clears all tracked bounty globals
-; -----------------------------------------------------------------------------
-Bool Function ClearTrackedBounties()
-	Int iIndex = 0
-	While iIndex < dubhTrackedBounties.GetSize()
-		GlobalVariable currentTrackedBounty = dubhTrackedBounties.GetAt(iIndex) as GlobalVariable
-		If currentTrackedBounty.GetValueInt() > 0
-			currentTrackedBounty.SetValueInt(0)
-		EndIf
-		iIndex += 1
-	EndWhile
-	Log("Cleared all tracked bounty global variables.")
-	Return True
-EndFunction
+	If asEventName == "dubhToggleDynamicCompatibility"
+		bCompatibilitySystem = numArg as Bool
 
-; -----------------------------------------------------------------------------
-; Sets relations between a faction and ALL factions in a formlist with string
-; -----------------------------------------------------------------------------
-Bool Function SetFactionRelationship(Formlist factions, Faction target, String rel)
-	Int iIndex = 0
-	While iIndex < factions.GetSize() - 1
-		Faction currentGuardFaction = factions.GetAt(iIndex) as Faction
-		Faction bfThievesGuild = dubhBaseFactions.GetAt(11) as Faction
-		If rel == "Ally"
-			If iIndex != 12 && target != bfThievesGuild
-				currentGuardFaction.SetAlly(target)
-			EndIf
-		ElseIf rel == "Friend"
-			If iIndex != 12 && target != bfThievesGuild
-				currentGuardFaction.SetAlly(target, true, true)
-			EndIf
-		ElseIf rel == "Neutral"
-			If iIndex != 12 && target != bfThievesGuild
-				currentGuardFaction.SetEnemy(target, true, true)
-			EndIf
-		ElseIf rel == "Enemy"
-			If iIndex != 12 && target != bfThievesGuild
-				currentGuardFaction.SetEnemy(target)
-			EndIf
-		EndIf
-		iIndex += 1
-	EndWhile
-	Return True
-EndFunction
-
-; -----------------------------------------------------------------------------
-; Starts quest with debug output
-; -----------------------------------------------------------------------------
-Bool Function StartQuest(Quest targetQuest)
-	If targetQuest.IsStopped()
-		If targetQuest.Start()
-			Log("Successfully started " + targetQuest)
-			Return True
-		EndIf
-	EndIf
-	Log("Could not start " + targetQuest + " because the quest was not stopped")
-	Return False
-EndFunction
-
-; -----------------------------------------------------------------------------
-; Stops quest with debug output
-; -----------------------------------------------------------------------------
-Bool Function StopQuest(Quest targetQuest)
-	Int iCycles = 0
-	If targetQuest.IsRunning()
-		targetQuest.Stop()
-		While targetQuest.IsRunning()
-			iCycles += 1
-		EndWhile
-		While targetQuest.IsStopping()
-			iCycles += 1
-		EndWhile
-		If targetQuest.IsStopped()
-			Log("Successfully stopped " + targetQuest)
-			Return True
-		EndIf
-	EndIf
-	Log("Could not stop " + targetQuest + " because the quest was not running")
-	Return False
-EndFunction
-
-; -----------------------------------------------------------------------------
-; Triggers when toggle button clicked
-; -----------------------------------------------------------------------------
-Event OnBooleanToggleClick(string eventName, string strArg, float numArg, Form sender)
-	; -----------------------------------------------------------------------------
-	; Toggle Disguise System
-	; -----------------------------------------------------------------------------
-	If eventName == "dubhToggleDisguiseSystem"
-		bDisguiseSystem = numArg as Bool
-
-		If bDisguiseSystem
-			StartQuest(dubhDisguiseQuest)
+		If bCompatibilitySystem
+			StartQuest(CompatibilityQuest)
 		Else
-			If StopQuest(dubhDisguiseQuest)
+			If StopQuest(CompatibilityQuest)
 				ClearDisguiseFactions()
-				ClearTrackedBounties()
+;       ClearTrackedBounties()
 			EndIf
 		EndIf
+	ElseIf asEventName == "dubhToggleDiscoverySystem"
+		bDiscoverySystem = numArg as Bool
 
-	; -----------------------------------------------------------------------------
-	; Toggle Detection System
-	; -----------------------------------------------------------------------------
-	ElseIf eventName == "dubhToggleDetectionSystem"
-		bDetectionSystem = numArg as Bool
-
-		If bDetectionSystem
-			StartQuest(dubhDetectionQuest)
+		If bDiscoverySystem
+			StartQuest(DetectionQuest)
 		Else
-			StopQuest(dubhDetectionQuest)
+			StopQuest(DetectionQuest)
 		EndIf
-
-	; -----------------------------------------------------------------------------
-	; Uninstall
-	; -----------------------------------------------------------------------------
-	;ElseIf eventName == "dubhUninstall"
-	;	bUninstalled = numArg as Bool
-  ;
-	;	If bUninstalled
-	;		If StopQuest(dubhDisguiseQuest)
-	;			If StopQuest(dubhDetectionQuest)
-	;				parent.OnMenuClose(ModName)
-	;				StopQuest(self)
-	;			EndIf
-	;		EndIf
-	;	Else
-	;		Log("bUninstalled set to: " + bUninstalled + ". This should be unreachable.")
-	;	EndIf
-
-	; -----------------------------------------------------------------------------
-	; Toggle Bandit Disguise
-	; -----------------------------------------------------------------------------
-	ElseIf eventName == "dubhToggleDisguiseBandit"
-		bBanditDisguise = numArg as Bool
-		Faction BanditDisguise = dubhDisguiseFactions.GetAt(30) as Faction
-
-		If bBanditDisguise
-			If dubhExcludedDisguises.HasForm(BanditDisguise)
-				dubhExcludedDisguises.RemoveAddedForm(BanditDisguise)
-				Log("Removed " + BanditDisguise + " from " + dubhExcludedDisguises)
-			EndIf
-		Else
-			If !dubhExcludedDisguises.HasForm(BanditDisguise)
-				dubhExcludedDisguises.AddForm(BanditDisguise)
-				Log("Added " + BanditDisguise + " to " + dubhExcludedDisguises)
-			EndIf
-		EndIf
-
-	; -----------------------------------------------------------------------------
-	; Toggle Guards vs. Dark Brotherhood
-	; -----------------------------------------------------------------------------
-	ElseIf eventName == "dubhToggleGuardsVsDarkBrotherhood"
+	ElseIf asEventName == "dubhToggleGuardsVsDarkBrotherhood"
 		bGuardsVsDarkBrotherhood = numArg as Bool
-		Faction bfDarkBrotherhood = dubhBaseFactions.GetAt(2) as Faction
-
 		If bGuardsVsDarkBrotherhood
-			If SetFactionRelationship(dubhGuardFactions, bfDarkBrotherhood, "Enemy")
-				Log("Made " + bfDarkBrotherhood + " enemies of " + dubhGuardFactions)
-			EndIf
+			SetFactionRelationship(GuardFactions, DarkBrotherhoodFaction, "Enemy")
 		Else
-			If SetFactionRelationship(dubhGuardFactions, bfDarkBrotherhood, "Neutral")
-				Log("Made " + bfDarkBrotherhood + " neutral to " + dubhGuardFactions)
-			EndIf
+			SetFactionRelationship(GuardFactions, DarkBrotherhoodFaction, "Neutral")
 		EndIf
-
-	; -----------------------------------------------------------------------------
-	; Toggle Guards vs. Thieves Guild
-	; -----------------------------------------------------------------------------
-	ElseIf eventName == "dubhToggleGuardsVsThievesGuild"
+	ElseIf asEventName == "dubhToggleGuardsVsThievesGuild"
 		bGuardsVsThievesGuild = numArg as Bool
-		Faction bfThievesGuild = dubhBaseFactions.GetAt(11) as Faction
-
 		If bGuardsVsThievesGuild
-			If SetFactionRelationship(dubhGuardFactions, bfThievesGuild, "Enemy")
-				Log("Made " + bfThievesGuild + " enemies of " + dubhGuardFactions)
-			EndIf
+			SetFactionRelationship(GuardFactions, ThievesGuildFaction, "Enemy")
 		Else
-			If SetFactionRelationship(dubhGuardFactions, bfThievesGuild, "Neutral")
-				Log("Made " + bfThievesGuild + " neutral to " + dubhGuardFactions)
-			EndIf
+			SetFactionRelationship(GuardFactions, ThievesGuildFaction, "Neutral")
 		EndIf
-
+	ElseIf asEventName == "CheatAddDisguise01" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(0) as FormList, 1, True)
+		LogInfo("Added items from Blades formlist.")
+	ElseIf asEventName == "CheatAddDisguise02" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(1) as FormList, 1, True)
+		LogInfo("Added items from Cultists formlist.")
+	ElseIf asEventName == "CheatAddDisguise03" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(2) as FormList, 1, True)
+		LogInfo("Added items from Dark Brotherhood formlist.")
+	ElseIf asEventName == "CheatAddDisguise04" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(3) as FormList, 1, True)
+		LogInfo("Added items from Dawnguard formlist.")
+	ElseIf asEventName == "CheatAddDisguise05" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(4) as FormList, 1, True)
+		LogInfo("Added items from Forsworn formlist.")
+	ElseIf asEventName == "CheatAddDisguise06" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(5) as FormList, 1, True)
+		LogInfo("Added items from Imperial Legion formlist.")
+	ElseIf asEventName == "CheatAddDisguise07" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(6) as FormList, 1, True)
+		LogInfo("Added items from Morag Tong formlist.")
+	ElseIf asEventName == "CheatAddDisguise08" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(7) as FormList, 1, True)
+		LogInfo("Added items from Penitus Oculatus formlist.")
+	ElseIf asEventName == "CheatAddDisguise09" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(8) as FormList, 1, True)
+		LogInfo("Added items from Silver Hand formlist.")
+	ElseIf asEventName == "CheatAddDisguise10" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(9) as FormList, 1, True)
+		LogInfo("Added items from Stormcloaks formlist.")
+	ElseIf asEventName == "CheatAddDisguise11" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(10) as FormList, 1, True)
+		LogInfo("Added items from Thalmor formlist.")
+	ElseIf asEventName == "CheatAddDisguise12" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(11) as FormList, 1, True)
+		LogInfo("Added items from Thieves Guild formlist.")
+	ElseIf asEventName == "CheatAddDisguise13" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(12) as FormList, 1, True)
+		LogInfo("Added items from Vigil of Stendarr formlist.")
+	ElseIf asEventName == "CheatAddDisguise14" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(13) as FormList, 1, True)
+		LogInfo("Added items from Volkihar Clan formlist.")
+	ElseIf asEventName == "CheatAddDisguise15" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(14) as FormList, 1, True)
+		LogInfo("Added items from Necromancers formlist.")
+	ElseIf asEventName == "CheatAddDisguise16" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(15) as FormList, 1, True)
+		LogInfo("Added items from Vampires formlist.")
+	ElseIf asEventName == "CheatAddDisguise17" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(16) as FormList, 1, True)
+		LogInfo("Added items from Werewolves formlist.")
+	ElseIf asEventName == "CheatAddDisguise18" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(17) as FormList, 1, True)
+		LogInfo("Added items from Companions formlist.")
+	ElseIf asEventName == "CheatAddDisguise19" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(18) as FormList, 1, True)
+		LogInfo("Added items from Falkreath Guard formlist.")
+	ElseIf asEventName == "CheatAddDisguise20" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(19) as FormList, 1, True)
+		LogInfo("Added items from Hjaalmarch Guard formlist.")
+	ElseIf asEventName == "CheatAddDisguise21" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(20) as FormList, 1, True)
+		LogInfo("Added items from Markarth Guard formlist.")
+	ElseIf asEventName == "CheatAddDisguise22" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(21) as FormList, 1, True)
+		LogInfo("Added items from Pale Guard formlist.")
+	ElseIf asEventName == "CheatAddDisguise23" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(22) as FormList, 1, True)
+		LogInfo("Added items from Raven Rock Guard formlist.")
+	ElseIf asEventName == "CheatAddDisguise24" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(23) as FormList, 1, True)
+		LogInfo("Added items from Riften Guard formlist.")
+	ElseIf asEventName == "CheatAddDisguise25" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(24) as FormList, 1, True)
+		LogInfo("Added items from Solitude Guard formlist.")
+	ElseIf asEventName == "CheatAddDisguise26" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(25) as FormList, 1, True)
+		LogInfo("Added items from Whiterun Guard formlist.")
+	ElseIf asEventName == "CheatAddDisguise27" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(26) as FormList, 1, True)
+		LogInfo("Added items from Windhelm Guard formlist.")
+	ElseIf asEventName == "CheatAddDisguise28" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(27) as FormList, 1, True)
+		LogInfo("Added items from Winterhold Guard formlist.")
+	ElseIf asEventName == "CheatAddDisguise29" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(28) as FormList, 1, True)
+		LogInfo("Added items from Daedric Influence formlist.")
+	ElseIf asEventName == "CheatAddDisguise30" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(29) as FormList, 1, True)
+		LogInfo("Added items from Alik'r Mercenaries formlist.")
+	ElseIf asEventName == "CheatAddDisguise31" && numArg as Bool
+		PlayerRef.AddItem(DisguiseFormlists.GetAt(30) as FormList, 1, True)
+		LogInfo("Added items from Bandits formlist.")
 	EndIf
 EndEvent

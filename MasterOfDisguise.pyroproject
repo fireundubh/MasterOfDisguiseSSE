@@ -1,0 +1,44 @@
+<PapyrusProject
+  xmlns="PapyrusProject.xsd"
+  Game="SSE"
+  Flags="TESV_Papyrus_Flags.flg"
+  Output="@MyProject\scripts"
+  Optimize="true" Anonymize="true" Package="true" Zip="true">
+  <Variables>
+    <Variable Name="Namespace" Value="Master of Disguise"/>
+    <Variable Name="ModName" Value="@Namespace - Special Edition"/>
+    <Variable Name="MyProject" Value="E:\repos\mods\skyrim\@ModName"/>
+	<Variable Name="GameDir" Value="E:\SteamLibrary\Skyrim Special Edition"/>
+	<Variable Name="ScriptsDir" Value="@GameDir\Data\Scripts\Source"/>
+  </Variables>
+  <Imports>
+    <Import>E:\SDKs\SKSE\Scripts\Source</Import>
+    <Import>https://api.github.com/repos/fireundubh/skyui/contents/dist/Data/Scripts/Source?ref=master</Import>
+    <Import>@MyProject\scripts\Source</Import>
+    <Import>@ScriptsDir\Base</Import>
+  </Imports>
+  <Scripts>
+	<Script>dubhUtilityScript.psc</Script>
+    <Script>dubhDisguiseMCMHelper.psc</Script>
+    <Script>dubhDisguiseMCMQuestScript.psc</Script>
+    <Script>dubhDisguiseMCMStringUtil.psc</Script>
+    <Script>dubhApplyingEffectScript.psc</Script>
+    <Script>dubhCompatibilityQuestScript.psc</Script>
+    <Script>dubhFactionEnemyScript.psc</Script>
+    <Script>dubhMonitorEffectScript.psc</Script>
+    <Script>dubhPlayerScript.psc</Script>
+  </Scripts>
+  <Packages Output="@MyProject">
+    <Package Name="@ModName" RootDir="@MyProject">
+      <Include NoRecurse="true">@MyProject\scripts\*.pex</Include>
+      <Include NoRecurse="false">**/*.txt</Include>
+    </Package>
+    <Package Name="@ModName - Textures" RootDir="@MyProject">
+      <Include NoRecurse="false">**/*.dds</Include>
+    </Package>
+  </Packages>
+  <ZipFile Name="@ModName" RootDir="@MyProject" Output="@MyProject" Compression="deflate">
+    <Include>@MyProject\@ModName.esp</Include>
+    <Include NoRecurse="true">*.bsa</Include>
+  </ZipFile>
+</PapyrusProject>

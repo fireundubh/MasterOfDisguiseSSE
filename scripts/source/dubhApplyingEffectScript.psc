@@ -1,123 +1,162 @@
 ScriptName dubhApplyingEffectScript Extends ActiveMagicEffect
 
-; Globals
-GlobalVariable Property iDubhScriptDebugMonitor Auto
-GlobalVariable Property	iDubhDetectionEnabled Auto
-GlobalVariable Property iDubhAlwaysSucceedDremora Auto
-GlobalVariable Property iDubhAlwaysSucceedWerewolves Auto
+Import dubhUtilityScript
 
-; Actors
-Actor Property Player Auto
+; =============================================================================
+; PROPERTIES
+; =============================================================================
+
+GlobalVariable Property Global_fLOSDistanceMax Auto
+GlobalVariable Property Global_iAlwaysSucceedDremora Auto
+GlobalVariable Property Global_iAlwaysSucceedWerewolves Auto
+GlobalVariable Property Global_iDiscoveryEnabled Auto
+GlobalVariable Property Global_iPapyrusLoggingEnabled Auto
+
+Actor Property PlayerRef Auto
+FormList Property BaseFactions Auto
+FormList Property ExcludedActors Auto
+FormList Property ExcludedFactions Auto
+Spell Property MonitorAbility Auto
+
+; =============================================================================
+; SCRIPT-LOCAL VARIABLES
+; =============================================================================
+
 Actor NPC
 
-; Abilities
-Spell Property dubhMonitorAbility Auto
+; =============================================================================
+; FUNCTIONS
+; =============================================================================
 
-; Races Formlist
-Formlist Property dubhBaseFaction Auto
-Formlist Property dubhExcludedActors Auto
-Formlist Property dubhExcludedFactions Auto
-
-; -----------------------------------------------------------------------------
-; Sends a message to the Papyrus log
-; -----------------------------------------------------------------------------
-Function Log(String msgTrace)
-	If iDubhScriptDebugMonitor.GetValueInt() == 1
-		Debug.Trace("Master of Disguise: ApplyingEffectScript> " + msgTrace)
+Function _Log(String asTextToPrint)
+	If Global_iPapyrusLoggingEnabled.GetValue() as Bool
+		Debug.Trace("Master of Disguise: dubhApplyingEffectScript> " + asTextToPrint)
 	EndIf
 EndFunction
 
-; -----------------------------------------------------------------------------
-; Returns TRUE if the NPC has an excluded actor type keyword
-; -----------------------------------------------------------------------------
-Bool Function IsExcludedActorType()
-	Int iIndex = 0
-	While iIndex < dubhExcludedActors.GetSize()
-		Keyword currentKeyword = dubhExcludedActors.GetAt(iIndex) as Keyword
-		If NPC.HasKeyword(currentKeyword)
+
+Function LogInfo(String asTextToPrint)
+	_Log("[INFO] " + asTextToPrint)
+EndFunction
+
+
+Function LogWarning(String asTextToPrint)
+	_Log("[WARN] " + asTextToPrint)
+EndFunction
+
+
+Function LogError(String asTextToPrint)
+	_Log("[ERRO] " + asTextToPrint)
+EndFunction
+
+
+Bool Function ActorIsExcludedByAnyKeyword(Actor akActor, FormList akKeywords)
+	Int i = 0
+
+	While i < akKeywords.GetSize()
+		If akActor.HasKeyword(akKeywords.GetAt(i) as Keyword)
 			Return True
 		EndIf
-		iIndex += 1
+
+		i += 1
 	EndWhile
+
 	Return False
 EndFunction
 
-; -----------------------------------------------------------------------------
-; Returns TRUE if the actor is in the specified faction
-; -----------------------------------------------------------------------------
-Bool Function IsInValidFaction()
-	Int iIndex = 0
-	While iIndex < dubhBaseFaction.GetSize()
-		Faction currentFaction = dubhBaseFaction.GetAt(iIndex) as Faction
-		If NPC.IsInFaction(currentFaction)
-			If NPC.GetFactionRank(currentFaction) > -1
-				Return True
-			EndIf
-		EndIf
-		iIndex += 1
-	EndWhile
-	Return False
-EndFunction
 
-; -----------------------------------------------------------------------------
-; Returns TRUE if the actor is in the specified faction
-; -----------------------------------------------------------------------------
-Bool Function IsInExcludedFaction()
-	Int iIndex = 0
-	While iIndex < dubhExcludedFactions.GetSize()
-		Faction excludedFaction = dubhExcludedFactions.GetAt(iIndex) as Faction
-		;Log("Excluded Faction: " + excludedFaction + " - Index: " + iIndex)
-		If NPC.IsInFaction(excludedFaction)
-			If NPC.GetFactionRank(excludedFaction) > -1
-				Return True
-			EndIf
-		EndIf
-		iIndex += 1
-	EndWhile
-	Return False
-EndFunction
-
-; -----------------------------------------------------------------------------
-; Returns TRUE if the actor has a relationship to the player greater than 0
-; -----------------------------------------------------------------------------
-Bool Function IsMoreThanAnAcquaintance()
-	If NPC.GetRelationshipRank(Player) > 0
-		Return True
-	EndIf
-	Return False
-EndFunction
-
-; -----------------------------------------------------------------------------
-; Returns TRUE if the actor is in the Dremora or Werewolves factions
-; -----------------------------------------------------------------------------
-Bool Function IgnoreActor()
-	Faction WerewolvesFaction = dubhBaseFaction.GetAt(16) as Faction
-	Faction DremoraFaction = dubhBaseFaction.GetAt(28) as Faction
-	If NPC.IsInFaction(WerewolvesFaction) && iDubhAlwaysSucceedWerewolves.GetValue() == 1
-		If NPC.GetFactionRank(WerewolvesFaction) > -1
+Bool Function ActorIsInAnyBaseFaction(Actor akActor)
+	Int i = 0
+	
+	While i < BaseFactions.GetSize()
+		If ActorIsInFaction(akActor, BaseFactions.GetAt(i) as Faction)
 			Return True
 		EndIf
-	ElseIf NPC.IsInFaction(DremoraFaction) && iDubhAlwaysSucceedDremora.GetValue() == 1
-		If NPC.GetFactionRank(DremoraFaction) > -1
-			Return True
-		EndIf
-	Else
-		Return False
-	EndIf
+		i += 1
+	EndWhile
+
+	Return False
 EndFunction
 
-; -----------------------------------------------------------------------------
-; Main
-; -----------------------------------------------------------------------------
+
+Bool Function ActorIsInAnyFaction(Actor akActor, FormList akFactions)
+	Int i = 0
+
+	While i < akFactions.GetSize()
+		If ActorIsInFaction(akActor, akFactions.GetAt(i) as Faction)
+			Return True
+		EndIf
+
+		i += 1
+	EndWhile
+
+	Return False
+EndFunction
+
+; =============================================================================
+; EVENTS
+; =============================================================================
+
 Event OnEffectStart(Actor akTarget, Actor akCaster)
-	If iDubhDetectionEnabled.GetValueInt() == 1
-		NPC = akTarget
-		If !Player.IsDead() && !NPC.IsDead() && !NPC.HasSpell(dubhMonitorAbility) && NPC.GetDistance(Player) <= 2048
-			If !IgnoreActor() && !IsInExcludedFaction() && IsInValidFaction() && !IsExcludedActorType() && !IsMoreThanAnAcquaintance()
-				If NPC.AddSpell(dubhMonitorAbility)
-					Log("Attached " + dubhMonitorAbility + " to " + NPC + " after satisfying all conditions")
-				EndIf
-			EndIf
-		EndIf
+	NPC = akTarget
+
+	If !(Global_iDiscoveryEnabled.GetValue() as Bool)
+		NPC = None
+		Return
+	EndIf
+
+	If PlayerRef.IsDead()
+		NPC = None
+		Return
+	EndIf
+
+	If NPC.IsDead()
+		NPC = None
+		Return
+	EndIf
+
+	If NPC.HasSpell(MonitorAbility)
+		NPC = None
+		Return
+	EndIf
+
+	If NPC.GetRelationshipRank(PlayerRef) > 0
+		NPC = None
+		Return
+	EndIf
+
+	If NPC.GetDistance(PlayerRef) > Global_fLOSDistanceMax.GetValue()
+		NPC = None
+		Return
+	EndIf
+
+	If Global_iAlwaysSucceedDremora.GetValue() as Bool && ActorIsInFaction(NPC, BaseFactions.GetAt(28) as Faction)
+		NPC = None
+		Return
+	EndIf
+
+	If Global_iAlwaysSucceedWerewolves.GetValue() as Bool && ActorIsInFaction(NPC, BaseFactions.GetAt(16) as Faction)
+		NPC = None
+		Return
+	EndIf
+
+	If ActorIsInAnyFaction(NPC, ExcludedFactions)
+		NPC = None
+		Return
+	EndIf
+
+	If ActorIsExcludedByAnyKeyword(NPC, ExcludedActors)
+		NPC = None
+		Return
+	EndIf
+
+	If !ActorIsInAnyBaseFaction(NPC)
+		NPC = None
+		Return
+	EndIf
+
+	If NPC.AddSpell(MonitorAbility)
+		LogInfo("Attached monitor after satisfying all conditions to: " + NPC)
+		NPC = None
 	EndIf
 EndEvent

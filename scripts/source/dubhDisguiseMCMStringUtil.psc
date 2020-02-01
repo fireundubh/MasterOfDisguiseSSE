@@ -1,4 +1,4 @@
-﻿ScriptName dubhDisguiseMCMStringUtil
+ScriptName dubhDisguiseMCMStringUtil
 {string manipulation utility}
 
 import StringUtil
