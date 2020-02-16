@@ -365,7 +365,7 @@ Bool Function EssentialGearIsEquipped(Int aiFactionIndex, FormList akCurrentDisg
 EndFunction
 
 
-Function ShowTutorialMessages()
+Function ShowMessageChain()
 	Int i = 0
 
 	While i < MessageChain.Length
@@ -385,38 +385,61 @@ EndFunction
 Function EnableDisguise(Int aiFactionIndex)
 	(DisguiseMessageOn.GetAt(aiFactionIndex) as Message).Show()
 	ArrayDisguisesEnabled[aiFactionIndex] = True
+	LogInfo("Enabled disguise: aiFactionIndex = " + aiFactionIndex)
 EndFunction
 
 
 Function DisableDisguise(Int aiFactionIndex)
 	(DisguiseMessageOff.GetAt(aiFactionIndex) as Message).Show()
 	ArrayDisguisesEnabled[aiFactionIndex] = False
+	LogInfo("Disabled disguise: aiFactionIndex = " + aiFactionIndex)
+EndFunction
+
+
+Function AddDisguise(Faction akDisguiseFaction, Int aiFactionIndex)
+	If PlayerRef.IsInFaction(akDisguiseFaction)
+		LogWarning("Cannot add disguise because player is in disguise faction")
+		Return
+	EndIf
+
+	If TryAddToFaction(PlayerRef, akDisguiseFaction)
+		LogInfo("Added player to disguise faction: " + akDisguiseFaction)
+
+		EnableDisguise(aiFactionIndex)
+
+		If !(Global_iTutorialCompleted.GetValue() as Bool)
+			ShowMessageChain()
+		EndIf
+
+		; TODO: if faction is a guard disguise, save bounties to crime gold arrays and clear actual crime gold
+	EndIf
 EndFunction
 
 
 Function TryAddDisguise(Int aiFactionIndex)
-	; Adds the player to the specified disguise faction, notifies the player,
-	; and sets the respective Bool flag in ArrayDisguisesEnabled[] to TRUE
+	If ArrayDisguisesEnabled.Find(True) > -1
+		LogWarning("Cannot add disguise because player has an enabled disguise: aiFactionIndex = " + aiFactionIndex)
+	EndIf
 
 	If ArrayDisguisesEnabled[aiFactionIndex]
-		;LogInfo("Cannot add disguise because disguise is already enabled: aiFactionIndex = " + aiFactionIndex)
+		LogWarning("Cannot add disguise because disguise is already enabled: aiFactionIndex = " + aiFactionIndex)
 		Return
 	EndIf
 
 	Faction kBaseFaction = BaseFactions.GetAt(aiFactionIndex) as Faction
 	If ActorIsInFaction(PlayerRef, kBaseFaction)
-		;LogInfo("Cannot add disguise because player is in base faction: aiFactionIndex = " + aiFactionIndex)
+		LogWarning("Cannot add disguise because player is in base faction: aiFactionIndex = " + aiFactionIndex)
 		Return
 	EndIf
 
 	Faction kDisguiseFaction = DisguiseFactions.GetAt(aiFactionIndex) as Faction
 	If PlayerRef.IsInFaction(kDisguiseFaction)
-		;LogInfo("Cannot add disguise because player is in disguise faction: " + kDisguiseFaction)
+		LogWarning("Cannot add disguise because player is in disguise faction: " + kDisguiseFaction)
 		Return
 	EndIf
 
 	If !CanDisguiseActivate(aiFactionIndex)
-		;LogInfo("Cannot add disguise because disguise cannot be activated: aiFactionIndex = " + aiFactionIndex)
+		LogWarning("Cannot add disguise because disguise cannot be activated: aiFactionIndex = " + aiFactionIndex)
 		Return
 	EndIf
 
@@ -442,31 +465,19 @@ Function TryAddDisguise(Int aiFactionIndex)
 	EndIf
 
 	If bEquippedSlotMask && !ArrayDisguisesEnabled[aiFactionIndex]
-		If TryAddToFaction(PlayerRef, kDisguiseFaction)
-			LogInfo("Added player to disguise faction: " + kDisguiseFaction)
-
-			EnableDisguise(aiFactionIndex)
-
-			If !(Global_iTutorialCompleted.GetValue() as Bool)
-				ShowTutorialMessages()
-			EndIf
-
-			; TODO: if faction is a guard disguise, save bounties to crime gold arrays and clear actual crime gold
-		EndIf
+		AddDisguise(kDisguiseFaction, aiFactionIndex)
 	EndIf
 EndFunction
 
 
 Function RemoveDisguise(Faction akDisguiseFaction, Int aiFactionIndex)
-	; Removes the player from the specified disguise faction, notifies the player,
-	; and sets the respective Bool flag in ArrayDisguisesEnabled[] to FALSE
-
 	If !PlayerRef.IsInFaction(akDisguiseFaction)
+		LogWarning("Cannot remove disguise because player is not in disguise faction")
 		Return
 	EndIf
 
 	If TryRemoveFromFaction(PlayerRef, akDisguiseFaction)
-		LogInfo("Player removed from disguise faction: " + akDisguiseFaction)
+		LogInfo("Removed player from disguise faction: " + akDisguiseFaction)
 
 		DisableDisguise(aiFactionIndex)
 
@@ -476,6 +487,10 @@ EndFunction
 
 
 Function TryRemoveDisguise(Int aiFactionIndex)
+	If ArrayDisguisesEnabled.Find(True) == -1
+		LogWarning("Cannot remove disguise because player has no enabled disguises: aiFactionIndex = " + aiFactionIndex)
+	EndIf
+
 	Faction kDisguiseFaction = DisguiseFactions.GetAt(aiFactionIndex) as Faction
 
 	If aiFactionIndex == 30 && !(Global_iDisguiseEnabledBandit.GetValue() as Bool)
@@ -512,13 +527,13 @@ Function TryRemoveDisguise(Int aiFactionIndex)
 EndFunction
 
 
-Function UpdateDisguise(Int aiFactionIndex)
+Function UpdateDisguise(Int aiFactionIndex)  ; used in event scope
 	TryAddDisguise(aiFactionIndex)
 	TryRemoveDisguise(aiFactionIndex)
 EndFunction
 
 
-Function TryUpdateDisguise(Form akBaseObject)
+Function TryUpdateDisguise(Form akBaseObject)  ; used in event scope
 	; Attempts to update disguise and base faction memberships
 
 	Int iCycles = 0
@@ -529,7 +544,7 @@ Function TryUpdateDisguise(Form akBaseObject)
 	Bool[] rgbPossibleDisguises = GetPossibleDisguisesByForm(akBaseObject)
 
 	If rgbPossibleDisguises.Find(True) == -1
-		;LogWarning("Cannot update disguise because disguise not associated with form: " + akBaseObject)
+		LogWarning("Cannot update disguise because disguise not associated with form: " + akBaseObject)
 		Return
 	EndIf
 
@@ -587,24 +602,30 @@ EndEvent
 
 
 Event OnObjectEquipped(Form akBaseObject, ObjectReference akReference)
-	If PlayerRef.IsInCombat()
-		Return
-	EndIf
+	Int iCycles = 0
+
+	While Utility.IsInMenuMode() || PlayerRef.IsInCombat()
+		iCycles += 1
+	EndWhile
 
 	Utility.Wait(1.0)
 
 	If akBaseObject
+		LogInfo("Trying to update disguise because the player equipped: " + akBaseObject)
 		TryUpdateDisguise(akBaseObject)
 	EndIf
 EndEvent
 
 
 Event OnObjectUnequipped(Form akBaseObject, ObjectReference akReference)
-	If PlayerRef.IsInCombat()
-		Return
-	EndIf
+	Int iCycles = 0
+
+	While Utility.IsInMenuMode() || PlayerRef.IsInCombat()
+		iCycles += 1
+	EndWhile
 
 	If akBaseObject
+		LogInfo("Trying to update disguise because the player unequipped: " + akBaseObject)
 		TryUpdateDisguise(akBaseObject)
 	EndIf
 EndEvent
