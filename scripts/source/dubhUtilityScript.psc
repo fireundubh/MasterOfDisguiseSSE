@@ -1,5 +1,13 @@
 ScriptName dubhUtilityScript
 
+Float Function Max(Float afValue1, Float afValue2) Global
+	If afValue1 > afValue2
+		Return afValue1
+	EndIf
+	Return afValue2
+EndFunction
+
+
 Bool Function TryAddToFaction(Actor akActor, Faction akFaction) Global
 	If !akActor.IsInFaction(akFaction)
 		akActor.AddToFaction(akFaction)
@@ -58,14 +66,11 @@ Float Function GetBestSkill(Actor akActor) Global
 	;   of the best skill on the chance to remain undetected
 	;   Ex: fDetectionWeight += GetBestSkillWeight(PlayerRef)
 
-	Float fSneakValue = akActor.GetActorValue("Sneak")
+	Float fSneakValue    = akActor.GetActorValue("Sneak")
 	Float fIllusionValue = akActor.GetActorValue("Illusion")
+	Float fSpeechValue   = akActor.GetActorValue("Speechcraft")
 
-	If fSneakValue > fIllusionValue
-		Return fSneakValue
-	EndIf
-
-	Return fIllusionValue
+	Return Max(fSneakValue, Max(fIllusionValue, fSpeechValue))
 EndFunction
 
 
