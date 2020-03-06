@@ -10,7 +10,9 @@ GlobalVariable Property Global_iCloakEnabled Auto
 GlobalVariable Property Global_iDisguiseEnabledBandit Auto
 GlobalVariable Property Global_iDisguiseEquippedVampire Auto
 GlobalVariable Property Global_iDisguiseEssentialSlotBandit Auto
+GlobalVariable Property Global_iFactionsUpdateAutoRun Auto
 GlobalVariable Property Global_iFactionsUpdateCompleted Auto
+GlobalVariable Property Global_iNotifyEnabled Auto
 GlobalVariable Property Global_iPapyrusLoggingEnabled Auto
 GlobalVariable Property Global_iTutorialCompleted Auto
 GlobalVariable Property Global_iVampireNightOnly Auto
@@ -26,6 +28,8 @@ FormList Property DisguiseFactions Auto
 FormList Property DisguiseFormlists Auto
 FormList Property DisguiseMessageOff Auto
 FormList Property DisguiseMessageOn Auto
+FormList Property DisguiseNotifyOff Auto
+FormList Property DisguiseNotifyOn Auto
 FormList Property DisguiseSlots Auto
 
 ; States
@@ -383,14 +387,22 @@ EndFunction
 
 
 Function EnableDisguise(Int aiFactionIndex)
-	(DisguiseMessageOn.GetAt(aiFactionIndex) as Message).Show()
+	If Global_iNotifyEnabled.GetValue() as Bool
+		(DisguiseNotifyOn.GetAt(aiFactionIndex) as Message).Show()
+	Else
+		(DisguiseMessageOn.GetAt(aiFactionIndex) as Message).Show()
+	EndIf
 	ArrayDisguisesEnabled[aiFactionIndex] = True
 	LogInfo("Enabled disguise: aiFactionIndex = " + aiFactionIndex)
 EndFunction
 
 
 Function DisableDisguise(Int aiFactionIndex)
-	(DisguiseMessageOff.GetAt(aiFactionIndex) as Message).Show()
+	If Global_iNotifyEnabled.GetValue() as Bool
+		(DisguiseNotifyOff.GetAt(aiFactionIndex) as Message).Show()
+	Else
+		(DisguiseMessageOff.GetAt(aiFactionIndex) as Message).Show()
+	EndIf
 	ArrayDisguisesEnabled[aiFactionIndex] = False
 	LogInfo("Disabled disguise: aiFactionIndex = " + aiFactionIndex)
 EndFunction
@@ -568,7 +580,9 @@ EndEvent
 
 
 Event OnPlayerLoadGame()
-	Global_iFactionsUpdateCompleted.SetValueInt(0)
+	If Global_iFactionsUpdateAutoRun.GetValue() as Bool
+		Global_iFactionsUpdateCompleted.SetValueInt(0)
+	EndIf
 	RegisterForSingleUpdate(1.0)
 EndEvent
 
