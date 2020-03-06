@@ -31,7 +31,7 @@
   <Packages Output="@MyProject">
     <Package Name="@ModName" RootDir="@MyProject">
       <Include NoRecurse="true">@MyProject\scripts\*.pex</Include>
-      <Include NoRecurse="false">**/*.txt</Include>
+      <Include NoRecurse="false">@MyProject\interface\**\*.txt</Include>
     </Package>
     <Package Name="@ModName - Textures" RootDir="@MyProject">
       <Include NoRecurse="false">**/*.dds</Include>
