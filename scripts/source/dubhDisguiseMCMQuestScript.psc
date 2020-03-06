@@ -64,6 +64,8 @@ GlobalVariable Property Global_iCrimeWinterhold Auto
 GlobalVariable Property Global_iDiscoveryEnabled Auto
 GlobalVariable Property Global_iDisguiseEnabledBandit Auto
 GlobalVariable Property Global_iDisguiseEssentialSlotBandit Auto
+GlobalVariable Property Global_iFactionsUpdateAutoRun Auto
+GlobalVariable Property Global_iNotifyEnabled Auto
 GlobalVariable Property Global_iPapyrusLoggingEnabled Auto
 GlobalVariable Property Global_iVampireNightOnly Auto
 GlobalVariable Property Global_iVampireNightOnlyDayHourBegin Auto
@@ -451,6 +453,8 @@ Event OnPageReset(String asPageName)
 		AddEmptyOption()
 
 		AddHeaderOption("$dubhHeadingAdvancedDebug")
+		Alias_DefineMCMToggleOptionGlobal("AdvancedOptionFactionsUpdateAutoRun", Global_iFactionsUpdateAutoRun)
+		Alias_DefineMCMToggleOptionGlobal("AdvancedOptionNotifyEnabled", Global_iNotifyEnabled)
 		Alias_DefineMCMToggleOptionGlobal("AdvancedOptionPapyrusLogging", Global_iPapyrusLoggingEnabled)
 
 		AddEmptyOption()
