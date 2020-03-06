@@ -9,6 +9,7 @@ GlobalVariable Property Global_fScriptUpdateFrequencyCompatibility Auto
 GlobalVariable Property Global_iFactionsUpdateCompleted Auto
 GlobalVariable Property Global_iPapyrusLoggingEnabled Auto
 
+Message Property Message_FactionsUpdateStarting Auto
 Message Property Message_FactionsUpdateCompleted Auto
 
 Faction Property BanditAllyFaction Auto
@@ -512,9 +513,11 @@ EndEvent
 
 Event OnUpdate()
 	If !(Global_iFactionsUpdateCompleted.GetValue() as Bool)
-		SetUpFactions()
-		Global_iFactionsUpdateCompleted.SetValueInt(1)
-		Message_FactionsUpdateCompleted.Show()
+		If Message_FactionsUpdateStarting.Show() == 0
+			SetUpFactions()
+			Global_iFactionsUpdateCompleted.SetValueInt(1)
+			Message_FactionsUpdateCompleted.Show()
+		EndIf
 	EndIf
 
 	Float fDetectionViewCone = Game.GetGameSettingFloat("fDetectionViewCone")
