@@ -6,6 +6,7 @@ ScriptName dubhCompatibilityQuestScript Extends Quest
 
 GlobalVariable Property Global_fDetectionViewConeMCM Auto
 GlobalVariable Property Global_fScriptUpdateFrequencyCompatibility Auto
+GlobalVariable Property Global_iFactionsUpdateAutoRun Auto
 GlobalVariable Property Global_iFactionsUpdateCompleted Auto
 GlobalVariable Property Global_iPapyrusLoggingEnabled Auto
 
@@ -491,13 +492,13 @@ Function SetUpFactions()
 	WinterholdJailFaction.SetAlly(DisguiseFaction28)
 	WIThiefFaction.SetAlly(DisguiseFaction12, true, true)  ; Friend
 
-	Faction UDGPVampireFriendFaction = Game.GetFormFromFile(0x000969F9, "Unofficial Skyrim Special Edition Patch.esp") as Faction
+  Faction UDGPVampireFriendFaction = Game.GetFormFromFile(0x000969F9, "Unofficial Skyrim Special Edition Patch.esp") as Faction
 
-	If UDGPVampireFriendFaction
-		DA03VampireFaction.SetAlly(UDGPVampireFriendFaction, true, true)  ; Friend
-		VampireFaction.SetAlly(UDGPVampireFriendFaction, true, true)  ; Friend
-		VampireThrallFaction.SetAlly(UDGPVampireFriendFaction, true, true)  ; Friend
-	EndIf
+  If UDGPVampireFriendFaction
+    DA03VampireFaction.SetAlly(UDGPVampireFriendFaction, true, true)  ; Friend
+    VampireFaction.SetAlly(UDGPVampireFriendFaction, true, true)  ; Friend
+    VampireThrallFaction.SetAlly(UDGPVampireFriendFaction, true, true)  ; Friend
+  EndIf
 
 	LogInfo("Finished factions update.")
 EndFunction
@@ -513,10 +514,17 @@ EndEvent
 
 Event OnUpdate()
 	If !(Global_iFactionsUpdateCompleted.GetValue() as Bool)
-		If Message_FactionsUpdateStarting.Show() == 0
+		Int mbResult = Message_FactionsUpdateStarting.Show()
+
+		If mbResult == 0 || mbResult == 1
 			SetUpFactions()
-			Global_iFactionsUpdateCompleted.SetValueInt(1)
+
+			Global_iFactionsUpdateCompleted.SetValue(1)
 			Message_FactionsUpdateCompleted.Show()
+
+			If mbResult == 1
+				Global_iFactionsUpdateAutoRun.SetValue(0)
+			EndIf
 		EndIf
 	EndIf
 
