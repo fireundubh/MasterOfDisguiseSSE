@@ -424,6 +424,10 @@ Function AddDisguise(Faction akDisguiseFaction, Int aiFactionIndex)
 		EndIf
 
 		; TODO: if faction is a guard disguise, save bounties to crime gold arrays and clear actual crime gold
+		;If aiFactionIndex > 17 && aiFactionIndex < 28
+			; save bounties to crime gold arrays
+			; clear actual crime gold
+		;EndIf
 	EndIf
 EndFunction
 
@@ -494,6 +498,10 @@ Function RemoveDisguise(Faction akDisguiseFaction, Int aiFactionIndex)
 		DisableDisguise(aiFactionIndex)
 
 		; TODO: if faction is a guard disguise, restore bounties and clear crime gold arrays
+		;If aiFactionIndex > 17 && aiFactionIndex < 28
+			; restore bounties
+			; clear crime gold arrays
+		;EndIf
 	EndIf
 EndFunction
 
