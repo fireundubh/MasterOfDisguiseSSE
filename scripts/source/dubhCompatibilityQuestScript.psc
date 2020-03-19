@@ -514,17 +514,14 @@ EndEvent
 
 Event OnUpdate()
 	If !(Global_iFactionsUpdateCompleted.GetValue() as Bool)
-		Int mbResult = Message_FactionsUpdateStarting.Show()
+		Message_FactionsUpdateStarting.Show()
 
-		If mbResult == 0 || mbResult == 1
-			SetUpFactions()
+		SetUpFactions()
 
-			Global_iFactionsUpdateCompleted.SetValue(1)
-			Message_FactionsUpdateCompleted.Show()
+		Global_iFactionsUpdateCompleted.SetValue(1)
 
-			If mbResult == 1
-				Global_iFactionsUpdateAutoRun.SetValue(0)
-			EndIf
+		If Message_FactionsUpdateCompleted.Show() == 1
+			Global_iFactionsUpdateAutoRun.SetValue(0)
 		EndIf
 	EndIf
 
