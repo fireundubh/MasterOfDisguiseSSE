@@ -108,6 +108,11 @@ Bool Function CanDisguiseActivate(Int aiFactionIndex)
 			If ArrayDisguisesEnabled[17]
 				Return False
 			EndIf
+
+			; Silver Hand vs. Bandits
+			If ArrayDisguisesEnabled[30]
+				Return False
+			EndIf
 		EndIf
 	EndIf
 
@@ -233,6 +238,11 @@ Bool Function CanDisguiseActivate(Int aiFactionIndex)
 	If aiFactionIndex == 30
 		; Bandits can be toggled on/off through MCM
 		If !(Global_iDisguiseEnabledBandit.GetValue() as Bool)
+			Return False
+		EndIf
+
+		; Bandits vs. Silver Hand
+		If ArrayDisguisesEnabled[8]
 			Return False
 		EndIf
 
