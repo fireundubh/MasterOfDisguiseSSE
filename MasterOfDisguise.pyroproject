@@ -30,15 +30,21 @@
   </Scripts>
   <Packages Output="@MyProject">
     <Package Name="@ModName" RootDir="@MyProject">
-      <Include NoRecurse="true">@MyProject\scripts\*.pex</Include>
-      <Include NoRecurse="false">@MyProject\interface\**\*.txt</Include>
+      <Include>**/scripts/*.pex</Include>
+      <Include>**/interface/**/*.txt</Include>
+	  <Include>**/Strings/*.*</Include>
     </Package>
     <Package Name="@ModName - Textures" RootDir="@MyProject">
       <Include NoRecurse="false">**/*.dds</Include>
     </Package>
   </Packages>
-  <ZipFile Name="@ModName" RootDir="@MyProject" Output="@MyProject" Compression="deflate">
-    <Include>@MyProject\@ModName.esp</Include>
-    <Include NoRecurse="true">*.bsa</Include>
-  </ZipFile>
+  <ZipFiles Output="@MyProject">
+    <ZipFile Name="@ModName" RootDir="@MyProject" Compression="deflate">
+	  <Include NoRecurse="true">*/*.esp</Include>
+	  <Include NoRecurse="true">*.bsa</Include>
+    </ZipFile>
+	<ZipFile Name="@ModName - English" RootDir="@MyProject" Compression="deflate">
+	  <Include>**/Strings/*.*</Include>
+    </ZipFile>
+  </ZipFiles>
 </PapyrusProject>
