@@ -418,14 +418,16 @@ Function DisableDisguise(Int aiFactionIndex)
 EndFunction
 
 
-Function AddDisguise(Faction akDisguiseFaction, Int aiFactionIndex)
-	If PlayerRef.IsInFaction(akDisguiseFaction)
-		LogWarning("Cannot add disguise because player is in disguise faction")
+Function AddDisguise(Int aiFactionIndex)
+	Faction kDisguiseFaction = DisguiseFactions.GetAt(aiFactionIndex) as Faction
+
+	If PlayerRef.IsInFaction(kDisguiseFaction)
+		LogWarning("Cannot add disguise because player is in disguise faction: kDisguiseFaction = " + kDisguiseFaction)
 		Return
 	EndIf
 
-	If TryAddToFaction(PlayerRef, akDisguiseFaction)
-		LogInfo("Added player to disguise faction: " + akDisguiseFaction)
+	If TryAddToFaction(PlayerRef, kDisguiseFaction)
+		LogInfo("Added player to disguise faction: " + kDisguiseFaction)
 
 		EnableDisguise(aiFactionIndex)
 
@@ -445,6 +447,7 @@ EndFunction
 Function TryAddDisguise(Int aiFactionIndex)
 	If ArrayDisguisesEnabled.Find(True) > -1
 		LogWarning("Cannot add disguise because player has an enabled disguise: aiFactionIndex = " + aiFactionIndex)
+		Return
 	EndIf
 
 	If ArrayDisguisesEnabled[aiFactionIndex]
@@ -491,19 +494,21 @@ Function TryAddDisguise(Int aiFactionIndex)
 	EndIf
 
 	If bEquippedSlotMask && !ArrayDisguisesEnabled[aiFactionIndex]
-		AddDisguise(kDisguiseFaction, aiFactionIndex)
+		AddDisguise(aiFactionIndex)
 	EndIf
 EndFunction
 
 
-Function RemoveDisguise(Faction akDisguiseFaction, Int aiFactionIndex)
-	If !PlayerRef.IsInFaction(akDisguiseFaction)
-		LogWarning("Cannot remove disguise because player is not in disguise faction")
+Function RemoveDisguise(Int aiFactionIndex)
+	Faction kDisguiseFaction = DisguiseFactions.GetAt(aiFactionIndex) as Faction
+
+	If !PlayerRef.IsInFaction(kDisguiseFaction)
+		LogWarning("Cannot remove disguise because player is not in disguise faction: kDisguiseFaction = " + kDisguiseFaction)
 		Return
 	EndIf
 
-	If TryRemoveFromFaction(PlayerRef, akDisguiseFaction)
-		LogInfo("Removed player from disguise faction: " + akDisguiseFaction)
+	If TryRemoveFromFaction(PlayerRef, kDisguiseFaction)
+		LogInfo("Removed player from disguise faction: kDisguiseFaction = " + kDisguiseFaction)
 
 		DisableDisguise(aiFactionIndex)
 
@@ -519,12 +524,13 @@ EndFunction
 Function TryRemoveDisguise(Int aiFactionIndex)
 	If ArrayDisguisesEnabled.Find(True) == -1
 		LogWarning("Cannot remove disguise because player has no enabled disguises: aiFactionIndex = " + aiFactionIndex)
+		Return
 	EndIf
 
 	Faction kDisguiseFaction = DisguiseFactions.GetAt(aiFactionIndex) as Faction
 
 	If aiFactionIndex == 30 && !(Global_iDisguiseEnabledBandit.GetValue() as Bool)
-		RemoveDisguise(kDisguiseFaction, aiFactionIndex)
+		RemoveDisguise(aiFactionIndex)
 		LogWarning("Removed bandit disguise because bandit disguise is disabled.")
 		Return
 	EndIf
@@ -534,7 +540,7 @@ Function TryRemoveDisguise(Int aiFactionIndex)
 	If bVampireDisguise
 		If Global_iVampireNightOnly.GetValue() as Bool
 			If IsDay(Global_iVampireNightOnlyDayHourBegin, Global_iVampireNightOnlyDayHourEnd)
-				RemoveDisguise(kDisguiseFaction, aiFactionIndex)
+				RemoveDisguise(aiFactionIndex)
 				LogWarning("Removed vampire disguise because vampire disguise day/night mode is enabled.")
 				Return
 			EndIf
@@ -547,7 +553,7 @@ Function TryRemoveDisguise(Int aiFactionIndex)
 			Return
 		EndIf
 
-		RemoveDisguise(kDisguiseFaction, aiFactionIndex)
+		RemoveDisguise(aiFactionIndex)
 
 		; for vampire night only feature
 		If bVampireDisguise
