@@ -270,14 +270,6 @@ Bool[] Function GetPossibleDisguisesByForm(Form akBaseObject)
 EndFunction
 
 
-Bool Function WornFormIsInDisguise(Form akWornForm, FormList akCurrentDisguise)
-	If akWornForm
-		Return akCurrentDisguise.HasForm(akWornForm)
-	EndIf
-	Return False
-EndFunction
-
-
 Bool Function EssentialGearIsEquipped(Int aiFactionIndex, FormList akCurrentDisguise)
 	Bool bDaedricResult = False
 
@@ -286,19 +278,19 @@ Bool Function EssentialGearIsEquipped(Int aiFactionIndex, FormList akCurrentDisg
 	If aiFactionIndex == 1 || aiFactionIndex == 8 || aiFactionIndex == 12 || aiFactionIndex == 26 || aiFactionIndex == 28 || aiFactionIndex == 30
 		; Cultists
 		If aiFactionIndex == 1
-			kWornForm = PlayerRef.GetEquippedArmorInSlot(iCirclet) as Form
+			kWornForm = PlayerRef.GetWornForm(0x00001000) as Form
 
 		; Silver Hand
 		ElseIf aiFactionIndex == 8
-			kWornForm = PlayerRef.GetEquippedArmorInSlot(iRing) as Form
+			kWornForm = PlayerRef.GetWornForm(0x00000040) as Form
 
 		 ; Vigil of Stendarr
 		ElseIf aiFactionIndex == 12
-			kWornForm = PlayerRef.GetEquippedArmorInSlot(iAmulet) as Form
+			kWornForm = PlayerRef.GetWornForm(0x00000020) as Form
 
 		 ; Windhelm Guard
 		ElseIf aiFactionIndex == 26
-			kWornForm = PlayerRef.GetEquippedArmorInSlot(iShield) as Form
+			kWornForm = PlayerRef.GetWornForm(0x00000200) as Form
 
 		; Daedric Influence
 		ElseIf aiFactionIndex == 28
@@ -306,35 +298,16 @@ Bool Function EssentialGearIsEquipped(Int aiFactionIndex, FormList akCurrentDisg
 
 			Bool[] rgbDaedricWornForms = new Bool[10]
 
-			kWornForm = PlayerRef.GetEquippedArmorInSlot(iHair) as Form
-			rgbDaedricWornForms[0] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
-
-			kWornForm = PlayerRef.GetEquippedArmorInSlot(iBody) as Form
-			rgbDaedricWornForms[1] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
-
-			kWornForm = PlayerRef.GetEquippedArmorInSlot(iHands) as Form
-			rgbDaedricWornForms[2] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
-
-			kWornForm = PlayerRef.GetEquippedArmorInSlot(iAmulet) as Form
-			rgbDaedricWornForms[3] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
-
-			kWornForm = PlayerRef.GetEquippedArmorInSlot(iRing) as Form
-			rgbDaedricWornForms[4] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
-
-			kWornForm = PlayerRef.GetEquippedArmorInSlot(iFeet) as Form
-			rgbDaedricWornForms[5] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
-
-			kWornForm = PlayerRef.GetEquippedArmorInSlot(iShield) as Form
-			rgbDaedricWornForms[6] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
-
-			kWornForm = PlayerRef.GetEquippedArmorInSlot(iCirclet) as Form
-			rgbDaedricWornForms[7] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
-
-			kWornForm = PlayerRef.GetEquippedWeapon(True) as Form
-			rgbDaedricWornForms[8] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
-
-			kWornForm = PlayerRef.GetEquippedWeapon() as Form
-			rgbDaedricWornForms[9] = WornFormIsInDisguise(kWornForm, akCurrentDisguise)
+			rgbDaedricWornForms[0] = akCurrentDisguise.HasForm(PlayerRef.GetWornForm(0x00000002) as Form) ; 0 Hair
+			rgbDaedricWornForms[1] = akCurrentDisguise.HasForm(PlayerRef.GetWornForm(0x00000004) as Form) ; 1 Body
+			rgbDaedricWornForms[2] = akCurrentDisguise.HasForm(PlayerRef.GetWornForm(0x00000008) as Form) ; 2 Hands
+			rgbDaedricWornForms[3] = akCurrentDisguise.HasForm(PlayerRef.GetWornForm(0x00000020) as Form) ; 3 Amulet
+			rgbDaedricWornForms[4] = akCurrentDisguise.HasForm(PlayerRef.GetWornForm(0x00000040) as Form) ; 4 Ring
+			rgbDaedricWornForms[5] = akCurrentDisguise.HasForm(PlayerRef.GetWornForm(0x00000080) as Form) ; 5 Feet
+			rgbDaedricWornForms[6] = akCurrentDisguise.HasForm(PlayerRef.GetWornForm(0x00000200) as Form) ; 6 Shield
+			rgbDaedricWornForms[7] = akCurrentDisguise.HasForm(PlayerRef.GetWornForm(0x00001000) as Form) ; 7 Circlet
+			rgbDaedricWornForms[8] = akCurrentDisguise.HasForm(PlayerRef.GetEquippedWeapon(true) as Form) ; 8 Weapon - Left
+			rgbDaedricWornForms[9] = akCurrentDisguise.HasForm(PlayerRef.GetEquippedWeapon() as Form)     ; 9 Weapon - Right
 
 			bDaedricResult = rgbDaedricWornForms.Find(True) > -1
 
@@ -344,38 +317,38 @@ Bool Function EssentialGearIsEquipped(Int aiFactionIndex, FormList akCurrentDisg
 			Int iSlot = Global_iDisguiseEssentialSlotBandit.GetValueInt()
 
 			If iSlot == 0
-				kWornForm = PlayerRef.GetEquippedArmorInSlot(iHair) as Form
+				kWornForm = PlayerRef.GetWornForm(0x00000002) as Form
 			ElseIf iSlot == 1
-				kWornForm = PlayerRef.GetEquippedArmorInSlot(iBody) as Form
+				kWornForm = PlayerRef.GetWornForm(0x00000004) as Form
 			ElseIf iSlot == 2
-				kWornForm = PlayerRef.GetEquippedArmorInSlot(iHands) as Form
+				kWornForm = PlayerRef.GetWornForm(0x00000008) as Form
 			ElseIf iSlot == 3
-				kWornForm = PlayerRef.GetEquippedArmorInSlot(iAmulet) as Form
+				kWornForm = PlayerRef.GetWornForm(0x00000020) as Form
 			ElseIf iSlot == 4
-				kWornForm = PlayerRef.GetEquippedArmorInSlot(iRing) as Form
+				kWornForm = PlayerRef.GetWornForm(0x00000040) as Form
 			ElseIf iSlot == 5
-				kWornForm = PlayerRef.GetEquippedArmorInSlot(iFeet) as Form
+				kWornForm = PlayerRef.GetWornForm(0x00000080) as Form
 			ElseIf iSlot == 6
-				kWornForm = PlayerRef.GetEquippedArmorInSlot(iShield) as Form
+				kWornForm = PlayerRef.GetWornForm(0x00000200) as Form
 			ElseIf iSlot == 7
-				kWornForm = PlayerRef.GetEquippedArmorInSlot(iCirclet) as Form
+				kWornForm = PlayerRef.GetWornForm(0x00001000) as Form
 			ElseIf iSlot == 8
 				kWornForm = PlayerRef.GetEquippedWeapon(True) as Form
 			ElseIf iSlot == 9
 				kWornForm = PlayerRef.GetEquippedWeapon() as Form
 			Else
-				kWornForm = PlayerRef.GetEquippedArmorInSlot(iBody) as Form
+				kWornForm = PlayerRef.GetWornForm(0x00000004) as Form
 			EndIf
 		EndIf
 	Else
-		kWornForm = PlayerRef.GetEquippedArmorInSlot(iBody) as Form
+		kWornForm = PlayerRef.GetWornForm(0x00000004) as Form
 	EndIf
 
 	If aiFactionIndex == 28
 		Return bDaedricResult
 	EndIf
 
-	Return WornFormIsInDisguise(kWornForm, akCurrentDisguise)
+	Return kWornForm && akCurrentDisguise.HasForm(kWornForm)
 EndFunction
 
 
@@ -397,22 +370,32 @@ EndFunction
 
 
 Function EnableDisguise(Int aiFactionIndex)
+	Message kMessage = None
+
 	If Global_iNotifyEnabled.GetValue() as Bool
-		(DisguiseNotifyOn.GetAt(aiFactionIndex) as Message).Show()
+		kMessage = DisguiseNotifyOn.GetAt(aiFactionIndex) as Message
 	Else
-		(DisguiseMessageOn.GetAt(aiFactionIndex) as Message).Show()
+		kMessage = DisguiseMessageOn.GetAt(aiFactionIndex) as Message
 	EndIf
+
+	kMessage.Show()
+
 	ArrayDisguisesEnabled[aiFactionIndex] = True
 	LogInfo("Enabled disguise: aiFactionIndex = " + aiFactionIndex)
 EndFunction
 
 
 Function DisableDisguise(Int aiFactionIndex)
+	Message kMessage = None
+
 	If Global_iNotifyEnabled.GetValue() as Bool
-		(DisguiseNotifyOff.GetAt(aiFactionIndex) as Message).Show()
+		kMessage = DisguiseNotifyOff.GetAt(aiFactionIndex) as Message
 	Else
-		(DisguiseMessageOff.GetAt(aiFactionIndex) as Message).Show()
+		kMessage = DisguiseMessageOff.GetAt(aiFactionIndex) as Message
 	EndIf
+
+	kMessage.Show()
+
 	ArrayDisguisesEnabled[aiFactionIndex] = False
 	LogInfo("Disabled disguise: aiFactionIndex = " + aiFactionIndex)
 EndFunction
@@ -436,7 +419,7 @@ Function AddDisguise(Int aiFactionIndex)
 		EndIf
 
 		; TODO: if faction is a guard disguise, save bounties to crime gold arrays and clear actual crime gold
-		;If aiFactionIndex > 17 && aiFactionIndex < 28
+		;If InRange(aiFactionIndex, 18, 27)
 			; save bounties to crime gold arrays
 			; clear actual crime gold
 		;EndIf
@@ -513,7 +496,7 @@ Function RemoveDisguise(Int aiFactionIndex)
 		DisableDisguise(aiFactionIndex)
 
 		; TODO: if faction is a guard disguise, restore bounties and clear crime gold arrays
-		;If aiFactionIndex > 17 && aiFactionIndex < 28
+		;If InRange(aiFactionIndex, 18, 27)
 			; restore bounties
 			; clear crime gold arrays
 		;EndIf
@@ -522,7 +505,7 @@ EndFunction
 
 
 Function TryRemoveDisguise(Int aiFactionIndex)
-	If ArrayDisguisesEnabled.Find(True) == -1
+	If ArrayDisguisesEnabled.Find(True) < 0
 		LogWarning("Cannot remove disguise because player has no enabled disguises: aiFactionIndex = " + aiFactionIndex)
 		Return
 	EndIf
@@ -580,7 +563,7 @@ Function TryUpdateDisguise(Form akBaseObject)  ; used in event scope
 	Bool[] rgbPossibleDisguises = GetPossibleDisguisesByForm(akBaseObject)
 
 	If rgbPossibleDisguises.Find(True) == -1
-		LogWarning("Cannot update disguise because disguise not associated with form: " + akBaseObject)
+		LogWarning("Cannot update disguise because form not associated with disguise: " + akBaseObject)
 		Return
 	EndIf
 

@@ -4,12 +4,12 @@ GlobalVariable Property Global_fBestSkillContribMax Auto
 GlobalVariable Property Global_fBountyPenaltyMult Auto
 GlobalVariable Property Global_fDetectionViewConeMCM Auto
 GlobalVariable Property Global_fEscapeDistance Auto
+GlobalVariable Property Global_fFOVPenaltyClear Auto
+GlobalVariable Property Global_fFOVPenaltyDistorted Auto
+GlobalVariable Property Global_fFOVPenaltyPeripheral Auto
 GlobalVariable Property Global_fLOSDistanceMax Auto
-GlobalVariable Property Global_fLOSPenaltyClearMin Auto
-GlobalVariable Property Global_fLOSPenaltyDistanceFar Auto
-GlobalVariable Property Global_fLOSPenaltyDistanceMid Auto
-GlobalVariable Property Global_fLOSPenaltyDistortedMin Auto
-GlobalVariable Property Global_fLOSPenaltyPeripheralMin Auto
+GlobalVariable Property Global_fLOSPenaltyFar Auto
+GlobalVariable Property Global_fLOSPenaltyMid Auto
 GlobalVariable Property Global_fMobilityBonus Auto
 GlobalVariable Property Global_fMobilityPenalty Auto
 GlobalVariable Property Global_fRaceArgonian Auto
@@ -304,7 +304,7 @@ Event OnPageReset(String asPageName)
   ElseIf asPageName == "$dubhPageDiscovery"
     SetCursorFillMode(TOP_TO_BOTTOM)
 
-    AddHeaderOption("$dubhHeadingDiscoveryViewCone")
+    AddHeaderOption("$dubhHeadingDiscoveryFov")
     Alias_DefineMCMSliderOptionGlobal("DiscoveryOptionViewCone", Global_fDetectionViewConeMCM, 30.0, 360.0, 5.0)
 
     AddEmptyOption()
@@ -314,10 +314,16 @@ Event OnPageReset(String asPageName)
 
     AddEmptyOption()
 
+    AddHeaderOption("$dubhHeadingDiscoveryFovPenalties")
+    Alias_DefineMCMSliderOptionGlobal("DiscoveryOptionFovClear",      Global_fFOVPenaltyClear,      0.0, 1.0, 0.05)
+    Alias_DefineMCMSliderOptionGlobal("DiscoveryOptionFovDistorted",  Global_fFOVPenaltyDistorted,  0.0, 1.0, 0.05)
+    Alias_DefineMCMSliderOptionGlobal("DiscoveryOptionFovPeripheral", Global_fFOVPenaltyPeripheral, 0.0, 1.0, 0.05)
+
+    AddEmptyOption()
+
     AddHeaderOption("$dubhHeadingDiscoveryLosPenalties")
-    Alias_DefineMCMSliderOptionGlobal("DiscoveryOptionLosClear",      Global_fLOSPenaltyClearMin,      0.0, 1.0, 0.05)
-    Alias_DefineMCMSliderOptionGlobal("DiscoveryOptionLosDistorted",  Global_fLOSPenaltyDistortedMin,  0.0, 1.0, 0.05)
-    Alias_DefineMCMSliderOptionGlobal("DiscoveryOptionLosPeripheral", Global_fLOSPenaltyPeripheralMin, 0.0, 1.0, 0.05)
+    Alias_DefineMCMSliderOptionGlobal("DiscoveryOptionLosMid",      Global_fLOSPenaltyMid, 0.0, 1.0, 0.05)
+    Alias_DefineMCMSliderOptionGlobal("DiscoveryOptionLosFar",      Global_fLOSPenaltyFar, 0.0, 1.0, 0.05)
 
     SetCursorPosition(1)
 

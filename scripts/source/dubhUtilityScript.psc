@@ -8,6 +8,14 @@ Float Function Max(Float afValue1, Float afValue2) Global
 EndFunction
 
 
+Float Function Min(Float afValue1, Float afValue2) Global
+	If afValue1 < afValue2
+		Return afValue1
+	EndIf
+	Return afValue2
+EndFunction
+
+
 Bool Function TryAddToFaction(Actor akActor, Faction akFaction) Global
 	If !akActor.IsInFaction(akFaction)
 		akActor.AddToFaction(akFaction)
@@ -74,42 +82,68 @@ Float Function GetBestSkill(Actor akActor) Global
 EndFunction
 
 
-Int Function GetLosType(Float afDistanceToPlayer, Float afMaxDistanceToPlayer, Float afHeadingAngle, Float afMinHeadingAngle, Float afMaxHeadingAngle) Global
-	; Retrieves line of sight type
+Bool Function InFloatRange(Float afValue, Float afMin, Float afMax) Global
+	; Indicates whether a float value falls within a specified range
+	Return (afValue >= afMin) && (afValue <= afMax)
+EndFunction
 
-	Float fDistanceNear = afMaxDistanceToPlayer / 4.0
-	Float fDistanceFar  = afMaxDistanceToPlayer / 2.0
 
-	Float fMaxHeadingAngleClear = afMaxHeadingAngle / 4.0
-	Float fMinHeadingAngleClear = Math.Abs(fMaxHeadingAngleClear) * -1.0
+Bool Function InIntRange(Int aiValue, Int aiMin, Int aiMax) Global
+	; Indicates whether a int value falls within a specified range
+	Return (aiValue >= aiMin) && (aiValue <= aiMax)
+EndFunction
 
-	Float fMaxHeadingAngleDistant = fMaxHeadingAngleClear * 2.0
-	Float fMinHeadingAngleDistant = Math.Abs(fMaxHeadingAngleDistant) * -1.0
 
-	Int result = 0
+Int Function GetFovType(Float afHeadingAngle, Float afMaxHeadingAngle) Global
+	; Returns type of field of view (clear, distorted, peripheral)
 
-	If (afDistanceToPlayer >= 0.0) && (afDistanceToPlayer < fDistanceNear)
-		; 0 - 512
-		If (afHeadingAngle >= fMinHeadingAngleClear) && (afHeadingAngle <= fMaxHeadingAngleClear)
-			result = 1
-		EndIf
-	ElseIf (afDistanceToPlayer >= fDistanceNear) && (afDistanceToPlayer < fDistanceFar)
-		; 512 - 1024
-		If (afHeadingAngle >= fMinHeadingAngleDistant) && (afHeadingAngle < fMinHeadingAngleClear)
-			result = 2
-		ElseIf (afHeadingAngle > fMaxHeadingAngleClear) && (afHeadingAngle <= fMaxHeadingAngleDistant)
-			result = 2
-		EndIf
-	ElseIf (afDistanceToPlayer >= fDistanceFar) && (afDistanceToPlayer <= afMaxDistanceToPlayer)
-		; 1024 - 2048
-		If (afHeadingAngle >= afMinHeadingAngle) && (afHeadingAngle < fMinHeadingAngleDistant)
-			result = 3
-		ElseIf (afHeadingAngle > fMaxHeadingAngleDistant) && (afHeadingAngle <= afMaxHeadingAngle)
-			result = 3
-		EndIf
+	; When fDetectionViewCone == 190.0, fClearAngleMax = 15 degrees
+	Float fClearAngleMax = afMaxHeadingAngle / (190.0 / 15.0)
+
+	If InFloatRange(afHeadingAngle, -fClearAngleMax, fClearAngleMax)
+		Return 1
 	EndIf
 
-	Return result
+	; When fDetectionViewCone == 190.0, fDistortedAngleMax = 30 degrees
+	Float fDistortedAngleMax = fClearAngleMax * 2.0
+
+	If InFloatRange(afHeadingAngle, -fDistortedAngleMax, fDistortedAngleMax)
+		Return 2
+	EndIf
+
+	; When fDetectionViewCone == 190.0, fPeripheralAngleMax = 60 degrees
+	Float fPeripheralAngleMax = fDistortedAngleMax * 2.0
+
+	If InFloatRange(afHeadingAngle, -fPeripheralAngleMax, fPeripheralAngleMax)
+		Return 3
+	EndIf
+
+	Return 0
+EndFunction
+
+
+Int Function GetLosType(Float afDistanceToPlayer, Float afMaxDistanceToPlayer) Global
+	; Returns type of line of sight (near, mid, far)
+
+	; When afMaxDistanceToPlayer == 2048, fNearDistanceMax = 512
+	Float fNearDistanceMax = afMaxDistanceToPlayer / 4.0
+
+	; When afMaxDistanceToPlayer == 2048, fMidDistanceMax = 1024
+	Float fMidDistanceMax  = afMaxDistanceToPlayer / 2.0
+
+	If InFloatRange(afDistanceToPlayer, 0.0, fNearDistanceMax)
+		Return 1
+	EndIf
+
+	If InFloatRange(afDistanceToPlayer, fNearDistanceMax, fMidDistanceMax)
+		Return 2
+	EndIf
+
+	If InFloatRange(afDistanceToPlayer, fMidDistanceMax, afMaxDistanceToPlayer)
+		Return 3
+	EndIf
+
+	Return 0
 EndFunction
 
 ; =============================================================================
