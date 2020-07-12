@@ -30,7 +30,6 @@ FormList Property DisguiseMessageOff Auto
 FormList Property DisguiseMessageOn Auto
 FormList Property DisguiseNotifyOff Auto
 FormList Property DisguiseNotifyOn Auto
-FormList Property DisguiseSlots Auto
 
 ; States
 Bool[] Property ArrayDisguisesEnabled Auto
