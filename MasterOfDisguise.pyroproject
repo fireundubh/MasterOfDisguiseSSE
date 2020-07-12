@@ -11,7 +11,7 @@
     <Variable Name="Namespace" Value="Master of Disguise"/>
     <Variable Name="ModName" Value="@Namespace - Special Edition"/>
     <Variable Name="MyProject" Value="F:\repos\mods\skyrim\@ModName"/>
-    <Variable Name="GameDir" Value="$Skyrim64Path$"/>
+    <Variable Name="GameDir" Value="$Skyrim64Path"/>
     <Variable Name="ScriptsDir" Value="@GameDir\Data\Scripts\Source"/>
   </Variables>
   <Imports>
