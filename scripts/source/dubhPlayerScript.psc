@@ -33,6 +33,10 @@ FormList Property DisguiseMessageOn Auto
 FormList Property DisguiseNotifyOff Auto
 FormList Property DisguiseNotifyOn Auto
 
+; Guard Disguises
+Quest Property JailQuest Auto
+Quest Property EscapeJailQuest Auto
+
 ; States
 Bool[] Property ArrayDisguisesEnabled Auto
 Bool[] Property ArrayDisguisesInitialized Auto
@@ -666,5 +670,27 @@ Event OnObjectUnequipped(Form akBaseObject, ObjectReference akReference)
   If akBaseObject
     LogInfo("Trying to update disguise because the player unequipped: " + akBaseObject)
     TryUpdateDisguise(akBaseObject)
+  EndIf
+EndEvent
+
+
+Event OnLocationChange(Location akOldLoc, Location akNewLoc)
+  If !JailQuest.IsRunning()
+    Return
+  EndIf
+
+  LocationAlias EscapeHold = JailQuest.GetAlias(6) as LocationAlias
+
+  If !PlayerRef.IsInLocation(EscapeHold.GetLocation())
+    Int iFactionIndex = ArrayDisguisesEnabled.Find(True)
+
+    If iFactionIndex < 0
+      Return
+    EndIf
+
+    If JailQuest.GetStage() < 100 && InIntRange(iFactionIndex, 18, 27)
+      JailQuest.SetStage(100)
+      EscapeJailQuest.CompleteQuest()
+    EndIf
   EndIf
 EndEvent
