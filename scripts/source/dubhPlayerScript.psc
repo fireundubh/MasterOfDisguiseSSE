@@ -27,25 +27,19 @@ FormList Property DisguiseFactionEnemies Auto
 FormList Property DisguiseFactionFriends Auto
 FormList Property DisguiseFactionNeutrals Auto
 FormList Property DisguiseFactions Auto
-FormList Property DisguiseFormlists Auto
+FormList Property DisguiseFormLists Auto
 FormList Property DisguiseMessageOff Auto
 FormList Property DisguiseMessageOn Auto
 FormList Property DisguiseNotifyOff Auto
 FormList Property DisguiseNotifyOn Auto
 
-; Guard Disguises
-Quest Property JailQuest Auto
-Quest Property EscapeJailQuest Auto
+; Ranges
+Int[] Property rgGuardFactions Auto
+Int[] Property rgVampireFactions Auto
+Int[] Property rgVigilOfStendarrExclusions Auto
+Int[] Property rgWindhelmGuardExclusions Auto
 
-; States
-Bool[] Property ArrayDisguisesEnabled Auto
-Bool[] Property ArrayDisguisesInitialized Auto
-
-; Other Arrays
-Int[] Property ArrayDisguisesVampire Auto
-Int[] Property VsArrayExclusionsVigilOfStendarr Auto
-Int[] Property VsArrayExclusionsWindhelmGuard Auto
-
+; Sequences
 Message[] Property MessageChain Auto
 
 
@@ -53,39 +47,32 @@ Message[] Property MessageChain Auto
 ; SCRIPT-LOCAL VARIABLES
 ; =============================================================================
 
-; Slot Masks
-Int iHair    = 31 ; 0x00000002
-Int iBody    = 32 ; 0x00000004
-Int iHands   = 33 ; 0x00000008
-Int iAmulet  = 35 ; 0x00000020
-Int iRing    = 36 ; 0x00000040
-Int iFeet    = 37 ; 0x00000080
-Int iShield  = 39 ; 0x00000200
-Int iCirclet = 42 ; 0x00001000
+Bool[] FactionStates
 
 ; =============================================================================
 ; FUNCTIONS
 ; =============================================================================
 
-Function _Log(String asTextToPrint)
+Function _Log(String asTextToPrint, Int aiSeverity = 0)
   If Global_iPapyrusLoggingEnabled.GetValue() as Bool
-    Debug.Trace("Master of Disguise: dubhPlayerScript> " + asTextToPrint)
+    Debug.OpenUserLog("MasterOfDisguise")
+    Debug.TraceUser("MasterOfDisguise", "dubhPlayerScript> " + asTextToPrint, aiSeverity)
   EndIf
 EndFunction
 
 
 Function LogInfo(String asTextToPrint)
-  _Log("[INFO] " + asTextToPrint)
+  _Log("[INFO] " + asTextToPrint, 0)
 EndFunction
 
 
 Function LogWarning(String asTextToPrint)
-  _Log("[WARN] " + asTextToPrint)
+  _Log("[WARN] " + asTextToPrint, 1)
 EndFunction
 
 
 Function LogError(String asTextToPrint)
-  _Log("[ERRO] " + asTextToPrint)
+  _Log("[ERRO] " + asTextToPrint, 2)
 EndFunction
 
 
@@ -94,148 +81,148 @@ Bool Function CanDisguiseActivate(Int aiFactionIndex)
 
   If aiFactionIndex == 1 || aiFactionIndex == 4 || aiFactionIndex == 8
     ; Cultists vs. Vigil of Stendarr
-    If aiFactionIndex == 1 && ArrayDisguisesEnabled[12]
+    If aiFactionIndex == 1 && FactionStates[12]
       Return False
     EndIf
 
     ; Forsworn vs. Windhelm Guard
-    If aiFactionIndex == 4 && ArrayDisguisesEnabled[26]
+    If aiFactionIndex == 4 && FactionStates[26]
       Return False
     EndIf
 
     ; Silver Hand
     If aiFactionIndex == 8
       ; Silver Hand vs. Werewolves
-      If ArrayDisguisesEnabled[16]
+      If FactionStates[16]
         Return False
       EndIf
 
       ; Silver Hand vs. The Companions
-      If ArrayDisguisesEnabled[17]
+      If FactionStates[17]
         Return False
       EndIf
 
       ; Silver Hand vs. Bandits
-      If ArrayDisguisesEnabled[30]
+      If FactionStates[30]
         Return False
       EndIf
     EndIf
   EndIf
 
-  ; VsArrayExclusionsVigilOfStendarr
-  If ArrayDisguisesEnabled[12] && VsArrayExclusionsVigilOfStendarr.Find(aiFactionIndex) > -1
+  ; rgVigilOfStendarrExclusions
+  If FactionStates[12] && rgVigilOfStendarrExclusions.Find(aiFactionIndex) > -1
     Return False
   EndIf
 
   ; Vigil of Stendarr
   If aiFactionIndex == 12
     ; Vigil of Stendarr vs. Cultists
-    If ArrayDisguisesEnabled[1]
+    If FactionStates[1]
       Return False
     EndIf
 
     ; Vigil of Stendarr vs. Clan Volkihar
-    If ArrayDisguisesEnabled[13]
+    If FactionStates[13]
       Return False
     EndIf
 
     ; Vigil of Stendarr vs. Necromancers
-    If ArrayDisguisesEnabled[14]
+    If FactionStates[14]
       Return False
     EndIf
 
     ; Vigil of Stendarr vs. Vampires
-    If ArrayDisguisesEnabled[15]
+    If FactionStates[15]
       Return False
     EndIf
 
     ; Vigil of Stendarr vs. Werewolves
-    If ArrayDisguisesEnabled[16]
+    If FactionStates[16]
       Return False
     EndIf
 
     ; Vigil of Stendarr vs. The Companions
-    If ArrayDisguisesEnabled[17]
+    If FactionStates[17]
       Return False
     EndIf
 
     ; Vigil of Stendarr vs. Daedric Influence
-    If ArrayDisguisesEnabled[28]
+    If FactionStates[28]
       Return False
     EndIf
   EndIf
 
-  ; VsArrayExclusionsWindhelmGuard
-  If ArrayDisguisesEnabled[26] && VsArrayExclusionsWindhelmGuard.Find(aiFactionIndex) > -1
+  ; rgWindhelmGuardExclusions
+  If FactionStates[26] && rgWindhelmGuardExclusions.Find(aiFactionIndex) > -1
     Return False
   EndIf
 
   ; Windhelm Guard
   If aiFactionIndex == 26
     ; Windhelm Guard vs. Forsworn
-    If ArrayDisguisesEnabled[4]
+    If FactionStates[4]
       Return False
     EndIf
 
     ; Windhelm Guard vs. Falkreath Guard
-    If ArrayDisguisesEnabled[18]
+    If FactionStates[18]
       Return False
     EndIf
 
     ; Windhelm Guard vs. Hjaalmarch Guard
-    If ArrayDisguisesEnabled[19]
+    If FactionStates[19]
       Return False
     EndIf
 
     ; Windhelm Guard vs. Markarth Guard
-    If ArrayDisguisesEnabled[20]
+    If FactionStates[20]
       Return False
     EndIf
 
     ; Windhelm Guard vs. Pale Guard
-    If ArrayDisguisesEnabled[21]
+    If FactionStates[21]
       Return False
     EndIf
 
     ; Windhelm Guard vs. Raven Rock Guard
-    If ArrayDisguisesEnabled[22]
+    If FactionStates[22]
       Return False
     EndIf
 
     ; Windhelm Guard vs. Riften Guard
-    If ArrayDisguisesEnabled[23]
+    If FactionStates[23]
       Return False
     EndIf
 
     ; Windhelm Guard vs. Solitude Guard
-    If ArrayDisguisesEnabled[24]
+    If FactionStates[24]
       Return False
     EndIf
 
     ; Windhelm Guard vs. Whiterun Guard
-    If ArrayDisguisesEnabled[25]
+    If FactionStates[25]
       Return False
     EndIf
 
     ; Windhelm Guard vs. Winterhold Guard
-    If ArrayDisguisesEnabled[27]
+    If FactionStates[27]
       Return False
     EndIf
 
     ; Windhelm Guard vs. Bandits
-    If ArrayDisguisesEnabled[30]
+    If FactionStates[30]
       Return False
     EndIf
   EndIf
 
   If aiFactionIndex == 27 || aiFactionIndex == 28
     ; Winterhold Guard vs. Windhelm Guard
-    If aiFactionIndex == 27 && ArrayDisguisesEnabled[26]
+    If aiFactionIndex == 27 && FactionStates[26]
       Return False
     EndIf
 
     ; Daedric Influence vs. Vigil of Stendarr
-    If aiFactionIndex == 28 && ArrayDisguisesEnabled[12]
+    If aiFactionIndex == 28 && FactionStates[12]
       Return False
     EndIf
   EndIf
@@ -248,12 +235,12 @@ Bool Function CanDisguiseActivate(Int aiFactionIndex)
     EndIf
 
     ; Bandits vs. Silver Hand
-    If ArrayDisguisesEnabled[8]
+    If FactionStates[8]
       Return False
     EndIf
 
     ; Bandits vs. Windhelm Guard
-    If ArrayDisguisesEnabled[26]
+    If FactionStates[26]
       Return False
     EndIf
   EndIf
@@ -262,99 +249,54 @@ Bool Function CanDisguiseActivate(Int aiFactionIndex)
 EndFunction
 
 
-Bool[] Function GetPossibleDisguisesByForm(Form akBaseObject)
-  Bool[] rgbPossibleDisguises = new Bool[31]
+Bool Function IsKeySlotEquipped(Int aiFactionIndex)
+  Form[] rgWornEquipment = TurtleClub.GetWornEquipment(PlayerRef)
 
-  Int i = 0
+  If !rgWornEquipment
+    LogError("rgWornEquipment was None - cannot get worn equipment for Player")
+    Return False
+  EndIf
 
-  While i < DisguiseFormlists.GetSize()
-    rgbPossibleDisguises[i] = (DisguiseFormlists.GetAt(i) as FormList).HasForm(akBaseObject)
-    i += 1
-  EndWhile
+  If rgWornEquipment.Length == 0
+    LogWarning("rgWornEquipment was empty - Player has no worn equipment")
+    Return False
+  EndIf
 
-  Return rgbPossibleDisguises
-EndFunction
+  FormList kCurrentDisguise = DisguiseFormLists.GetAt(aiFactionIndex) as FormList
 
+  If aiFactionIndex == 1  ; Cultists
+    Return rgWornEquipment[7] && kCurrentDisguise.HasForm(rgWornEquipment[7] as Form)
+  EndIf
 
-Bool Function EssentialGearIsEquipped(Int aiFactionIndex, FormList akCurrentDisguise)
-  Bool bDaedricResult = False
+  If aiFactionIndex == 8  ; Silver Hand
+    Return rgWornEquipment[4] && kCurrentDisguise.HasForm(rgWornEquipment[4] as Form)
+  EndIf
 
-  Form kWornForm = None
+  If aiFactionIndex == 12  ; Vigil of Stendarr
+    Return rgWornEquipment[3] && kCurrentDisguise.HasForm(rgWornEquipment[3] as Form)
+  EndIf
 
-  If aiFactionIndex == 1 || aiFactionIndex == 8 || aiFactionIndex == 12 || aiFactionIndex == 26 || aiFactionIndex == 28 || aiFactionIndex == 30
-    ; Cultists
-    If aiFactionIndex == 1
-      kWornForm = PlayerRef.GetWornForm(0x00001000) as Form
+  If aiFactionIndex == 26  ; Windhelm Guard
+    Return rgWornEquipment[6] && kCurrentDisguise.HasForm(rgWornEquipment[6] as Form)
+  EndIf
 
-    ; Silver Hand
-    ElseIf aiFactionIndex == 8
-      kWornForm = PlayerRef.GetWornForm(0x00000040) as Form
+  If aiFactionIndex == 28  ; Daedric Influence
+    ; When Daedric gear is equipped in ANY slot, that's enough to match.
+    Bool[] rgDaedricWornForms = TurtleClub.SearchListForForms(kCurrentDisguise, rgWornEquipment)
 
-     ; Vigil of Stendarr
-    ElseIf aiFactionIndex == 12
-      kWornForm = PlayerRef.GetWornForm(0x00000020) as Form
+    Return rgDaedricWornForms && rgDaedricWornForms.Find(True) > -1
+  EndIf
 
-     ; Windhelm Guard
-    ElseIf aiFactionIndex == 26
-      kWornForm = PlayerRef.GetWornForm(0x00000200) as Form
+  If aiFactionIndex == 30  ; Bandits
+    ; The essential slot for Bandits is configurable because this disguise can be disabled.
+    Int iSlot = Global_iDisguiseEssentialSlotBandit.GetValue() as Int
 
-    ; Daedric Influence
-    ElseIf aiFactionIndex == 28
-      ; When Daedric gear is equipped in ANY slot, that's enough to match.
-
-      Bool[] rgbDaedricWornForms = new Bool[10]
-
-      rgbDaedricWornForms[0] = akCurrentDisguise.HasForm(PlayerRef.GetWornForm(0x00000002) as Form) ; 0 Hair
-      rgbDaedricWornForms[1] = akCurrentDisguise.HasForm(PlayerRef.GetWornForm(0x00000004) as Form) ; 1 Body
-      rgbDaedricWornForms[2] = akCurrentDisguise.HasForm(PlayerRef.GetWornForm(0x00000008) as Form) ; 2 Hands
-      rgbDaedricWornForms[3] = akCurrentDisguise.HasForm(PlayerRef.GetWornForm(0x00000020) as Form) ; 3 Amulet
-      rgbDaedricWornForms[4] = akCurrentDisguise.HasForm(PlayerRef.GetWornForm(0x00000040) as Form) ; 4 Ring
-      rgbDaedricWornForms[5] = akCurrentDisguise.HasForm(PlayerRef.GetWornForm(0x00000080) as Form) ; 5 Feet
-      rgbDaedricWornForms[6] = akCurrentDisguise.HasForm(PlayerRef.GetWornForm(0x00000200) as Form) ; 6 Shield
-      rgbDaedricWornForms[7] = akCurrentDisguise.HasForm(PlayerRef.GetWornForm(0x00001000) as Form) ; 7 Circlet
-      rgbDaedricWornForms[8] = akCurrentDisguise.HasForm(PlayerRef.GetEquippedWeapon(true) as Form) ; 8 Weapon - Left
-      rgbDaedricWornForms[9] = akCurrentDisguise.HasForm(PlayerRef.GetEquippedWeapon() as Form)     ; 9 Weapon - Right
-
-      bDaedricResult = rgbDaedricWornForms.Find(True) > -1
-
-    ; Bandits
-    ElseIf aiFactionIndex == 30
-      ; The essential slot for Bandits is configurable because this disguise can be disabled.
-      Int iSlot = Global_iDisguiseEssentialSlotBandit.GetValueInt()
-
-      If iSlot == 0
-        kWornForm = PlayerRef.GetWornForm(0x00000002) as Form
-      ElseIf iSlot == 1
-        kWornForm = PlayerRef.GetWornForm(0x00000004) as Form
-      ElseIf iSlot == 2
-        kWornForm = PlayerRef.GetWornForm(0x00000008) as Form
-      ElseIf iSlot == 3
-        kWornForm = PlayerRef.GetWornForm(0x00000020) as Form
-      ElseIf iSlot == 4
-        kWornForm = PlayerRef.GetWornForm(0x00000040) as Form
-      ElseIf iSlot == 5
-        kWornForm = PlayerRef.GetWornForm(0x00000080) as Form
-      ElseIf iSlot == 6
-        kWornForm = PlayerRef.GetWornForm(0x00000200) as Form
-      ElseIf iSlot == 7
-        kWornForm = PlayerRef.GetWornForm(0x00001000) as Form
-      ElseIf iSlot == 8
-        kWornForm = PlayerRef.GetEquippedWeapon(True) as Form
-      ElseIf iSlot == 9
-        kWornForm = PlayerRef.GetEquippedWeapon() as Form
-      Else
-        kWornForm = PlayerRef.GetWornForm(0x00000004) as Form
-      EndIf
+    If Mathf.InRange(iSlot, 0, 9)
+      Return rgWornEquipment[iSlot] && kCurrentDisguise.HasForm(rgWornEquipment[iSlot] as Form)
     EndIf
-  Else
-    kWornForm = PlayerRef.GetWornForm(0x00000004) as Form
   EndIf
 
-  If aiFactionIndex == 28
-    Return bDaedricResult
-  EndIf
-
-  Return kWornForm && akCurrentDisguise.HasForm(kWornForm)
+  Return rgWornEquipment[1] && kCurrentDisguise.HasForm(rgWornEquipment[1] as Form)
 EndFunction
 
 
@@ -375,76 +317,44 @@ Function ShowMessageChain()
 EndFunction
 
 
-Function InitializeDisguise(Int aiFactionIndex)
-  If ArrayDisguisesInitialized[aiFactionIndex]
-    Return
-  EndIf
+Function UpdateFactionRelations(Int aiFactionIndex)
+  LogInfo("Updating faction relations: aiFactionIndex = " + aiFactionIndex)
 
   Faction kFaction = DisguiseFactions.GetAt(aiFactionIndex) as Faction
 
-  SetAllies(kFaction, DisguiseFactionAllies.GetAt(aiFactionIndex) as FormList)
-  SetEnemies(kFaction, DisguiseFactionEnemies.GetAt(aiFactionIndex) as FormList)
-  SetFriends(kFaction, DisguiseFactionFriends.GetAt(aiFactionIndex) as FormList)
-  SetNeutrals(kFaction, DisguiseFactionNeutrals.GetAt(aiFactionIndex) as FormList)
-
-  ArrayDisguisesInitialized[aiFactionIndex] = True
-  LogInfo("Initialized disguise: aiFactionIndex = " + aiFactionIndex)
-EndFunction
-
-
-Function EnableDisguise(Int aiFactionIndex)
-  InitializeDisguise(aiFactionIndex)
-
-  Message kMessage = None
-
-  If Global_iNotifyEnabled.GetValue() as Bool
-    kMessage = DisguiseNotifyOn.GetAt(aiFactionIndex) as Message
-  Else
-    kMessage = DisguiseMessageOn.GetAt(aiFactionIndex) as Message
-  EndIf
-
-  kMessage.Show()
-
-  ArrayDisguisesEnabled[aiFactionIndex] = True
-  LogInfo("Enabled disguise: aiFactionIndex = " + aiFactionIndex)
-EndFunction
-
-
-Function DisableDisguise(Int aiFactionIndex)
-  Message kMessage = None
-
-  If Global_iNotifyEnabled.GetValue() as Bool
-    kMessage = DisguiseNotifyOff.GetAt(aiFactionIndex) as Message
-  Else
-    kMessage = DisguiseMessageOff.GetAt(aiFactionIndex) as Message
-  EndIf
-
-  kMessage.Show()
-
-  ArrayDisguisesEnabled[aiFactionIndex] = False
-  LogInfo("Disabled disguise: aiFactionIndex = " + aiFactionIndex)
+  TurtleClub.SetAllies(kFaction, DisguiseFactionAllies.GetAt(aiFactionIndex) as FormList)
+  TurtleClub.SetEnemies(kFaction, DisguiseFactionEnemies.GetAt(aiFactionIndex) as FormList)
+  TurtleClub.SetAllies(kFaction, DisguiseFactionFriends.GetAt(aiFactionIndex) as FormList, True, True)
+  TurtleClub.SetEnemies(kFaction, DisguiseFactionNeutrals.GetAt(aiFactionIndex) as FormList, True, True)
 EndFunction
 
 
 Function AddDisguise(Int aiFactionIndex)
-  Faction kDisguiseFaction = DisguiseFactions.GetAt(aiFactionIndex) as Faction
-
-  If PlayerRef.IsInFaction(kDisguiseFaction)
-    LogWarning("Cannot add disguise because player is in disguise faction: kDisguiseFaction = " + kDisguiseFaction)
+  If FactionStates[aiFactionIndex]
     Return
   EndIf
 
-  If TryAddToFaction(PlayerRef, kDisguiseFaction)
-    LogInfo("Added player to disguise faction: " + kDisguiseFaction)
+  Faction kDisguiseFaction = DisguiseFactions.GetAt(aiFactionIndex) as Faction
 
-    EnableDisguise(aiFactionIndex)
+  If TryAddToFaction(PlayerRef, kDisguiseFaction)
+    LogInfo("Added player to disguise faction: aiFactionIndex = " + aiFactionIndex)
+
+    UpdateFactionRelations(aiFactionIndex)
+
+    If Global_iNotifyEnabled.GetValue() as Bool
+      (DisguiseNotifyOn.GetAt(aiFactionIndex) as Message).Show()
+    Else
+      (DisguiseMessageOn.GetAt(aiFactionIndex) as Message).Show()
+    EndIf
 
     If !(Global_iTutorialCompleted.GetValue() as Bool)
       ShowMessageChain()
     EndIf
 
+    FactionStates[aiFactionIndex] = True
+
     ; TODO: if faction is a guard disguise, save bounties to crime gold arrays and clear actual crime gold
-    ;If InRange(aiFactionIndex, 18, 27)
+    ;If Mathf.InRange(aiFactionIndex, 18, 27)
       ; save bounties to crime gold arrays
       ; clear actual crime gold
     ;EndIf
@@ -453,75 +363,69 @@ EndFunction
 
 
 Function TryAddDisguise(Int aiFactionIndex)
-  If ArrayDisguisesEnabled.Find(True) > -1
-    LogWarning("Cannot add disguise because player has an enabled disguise: aiFactionIndex = " + aiFactionIndex)
+  If FactionStates[aiFactionIndex]
     Return
   EndIf
 
-  If ArrayDisguisesEnabled[aiFactionIndex]
-    LogWarning("Cannot add disguise because disguise is already enabled: aiFactionIndex = " + aiFactionIndex)
+  ; prevent adding bandit disguise if disabled
+  If aiFactionIndex == 30 && !(Global_iDisguiseEnabledBandit.GetValue() as Bool)
+    LogWarning("Cannot add disguise because Bandit Disguise is disabled.")
     Return
   EndIf
 
-  Faction kBaseFaction = BaseFactions.GetAt(aiFactionIndex) as Faction
-  If ActorIsInFaction(PlayerRef, kBaseFaction)
+  If PlayerRef.IsInFaction(BaseFactions.GetAt(aiFactionIndex) as Faction)
     LogWarning("Cannot add disguise because player is in base faction: aiFactionIndex = " + aiFactionIndex)
     Return
   EndIf
 
-  Faction kDisguiseFaction = DisguiseFactions.GetAt(aiFactionIndex) as Faction
-  If PlayerRef.IsInFaction(kDisguiseFaction)
-    LogWarning("Cannot add disguise because player is in disguise faction: " + kDisguiseFaction)
-    Return
-  EndIf
-
+  ; prevent adding mutually exclusive disguises
   If !CanDisguiseActivate(aiFactionIndex)
     LogWarning("Cannot add disguise because disguise cannot be activated: aiFactionIndex = " + aiFactionIndex)
     Return
   EndIf
 
-  Bool bVampireDisguise  = ArrayDisguisesVampire.Find(aiFactionIndex) > -1
-  Bool bEquippedSlotMask = EssentialGearIsEquipped(aiFactionIndex, DisguiseFormlists.GetAt(aiFactionIndex) as FormList)
+  Bool bVampireDisguise = rgVampireFactions.Find(aiFactionIndex) > -1
+  Bool bKeySlotEquipped = IsKeySlotEquipped(aiFactionIndex)
 
   ; for vampire night only feature
   If bVampireDisguise
-    If bEquippedSlotMask
-      Global_iDisguiseEquippedVampire.SetValueInt(aiFactionIndex)
-    Else
-      Global_iDisguiseEquippedVampire.SetValueInt(0)
+    Global_iDisguiseEquippedVampire.SetValue(Mathf.IfThen(bKeySlotEquipped, aiFactionIndex, 0))
+  EndIf
+
+  If bVampireDisguise && Global_iVampireNightOnly.GetValue() as Bool
+    If TurtleClub.InRangeGameTime(Global_iVampireNightOnlyDayHourBegin.GetValue(), Global_iVampireNightOnlyDayHourEnd.GetValue())
+      LogInfo("Vampire disguise can be activated at night only because day/night mode is enabled.")
+      Return
     EndIf
   EndIf
 
-  If bVampireDisguise
-    If Global_iVampireNightOnly.GetValue() as Bool
-      If IsDay(Global_iVampireNightOnlyDayHourBegin, Global_iVampireNightOnlyDayHourEnd)
-        LogWarning("Vampire disguise can be activated at night only because day/night mode is enabled.")
-        Return
-      EndIf
-    EndIf
-  EndIf
-
-  If bEquippedSlotMask && !ArrayDisguisesEnabled[aiFactionIndex]
+  If bKeySlotEquipped && !FactionStates[aiFactionIndex]
     AddDisguise(aiFactionIndex)
   EndIf
 EndFunction
 
 
 Function RemoveDisguise(Int aiFactionIndex)
-  Faction kDisguiseFaction = DisguiseFactions.GetAt(aiFactionIndex) as Faction
-
-  If !PlayerRef.IsInFaction(kDisguiseFaction)
-    LogWarning("Cannot remove disguise because player is not in disguise faction: kDisguiseFaction = " + kDisguiseFaction)
+  If !FactionStates[aiFactionIndex]
+    LogWarning("Cannot remove disguise because player is not in disguise faction: aiFactionIndex = " + aiFactionIndex)
     Return
   EndIf
+
+  Faction kDisguiseFaction = DisguiseFactions.GetAt(aiFactionIndex) as Faction
 
   If TryRemoveFromFaction(PlayerRef, kDisguiseFaction)
     LogInfo("Removed player from disguise faction: kDisguiseFaction = " + kDisguiseFaction)
 
-    DisableDisguise(aiFactionIndex)
+    If Global_iNotifyEnabled.GetValue() as Bool
+      (DisguiseNotifyOff.GetAt(aiFactionIndex) as Message).Show()
+    Else
+      (DisguiseMessageOff.GetAt(aiFactionIndex) as Message).Show()
+    EndIf
+
+    FactionStates[aiFactionIndex] = False
 
     ; TODO: if faction is a guard disguise, restore bounties and clear crime gold arrays
-    ;If InRange(aiFactionIndex, 18, 27)
+    ;If Mathf.InRange(aiFactionIndex, 18, 27)
       ; restore bounties
       ; clear crime gold arrays
     ;EndIf
@@ -530,34 +434,37 @@ EndFunction
 
 
 Function TryRemoveDisguise(Int aiFactionIndex)
-  If ArrayDisguisesEnabled.Find(True) < 0
-    LogWarning("Cannot remove disguise because player has no enabled disguises: aiFactionIndex = " + aiFactionIndex)
+  If !FactionStates[aiFactionIndex]
     Return
   EndIf
 
-  Faction kDisguiseFaction = DisguiseFactions.GetAt(aiFactionIndex) as Faction
-
+  ; remove bandit disguise if player had disguise equipped and then disabled it
   If aiFactionIndex == 30 && !(Global_iDisguiseEnabledBandit.GetValue() as Bool)
     RemoveDisguise(aiFactionIndex)
     LogWarning("Removed bandit disguise because bandit disguise is disabled.")
     Return
   EndIf
 
-  Bool bVampireDisguise = ArrayDisguisesVampire.Find(aiFactionIndex) > -1
+  If PlayerRef.IsInFaction(BaseFactions.GetAt(aiFactionIndex) as Faction)
+    RemoveDisguise(aiFactionIndex)
+    LogWarning("Removed disguise because player is in base faction: aiFactionIndex = " + aiFactionIndex)
+    Return
+  EndIf
 
-  If bVampireDisguise
-    If Global_iVampireNightOnly.GetValue() as Bool
-      If IsDay(Global_iVampireNightOnlyDayHourBegin, Global_iVampireNightOnlyDayHourEnd)
-        RemoveDisguise(aiFactionIndex)
-        LogWarning("Removed vampire disguise because vampire disguise day/night mode is enabled.")
-        Return
-      EndIf
+  Bool bVampireDisguise = rgVampireFactions.Find(aiFactionIndex) > -1
+
+  If bVampireDisguise && Global_iVampireNightOnly.GetValue() as Bool
+    If TurtleClub.InRangeGameTime(Global_iVampireNightOnlyDayHourBegin.GetValue(), Global_iVampireNightOnlyDayHourEnd.GetValue())
+      RemoveDisguise(aiFactionIndex)
+      LogWarning("Removed vampire disguise because time restrictions are enabled.")
+      Return
     EndIf
   EndIf
 
-  If ArrayDisguisesEnabled[aiFactionIndex]
-    If EssentialGearIsEquipped(aiFactionIndex, DisguiseFormlists.GetAt(aiFactionIndex) as FormList)
-      ;LogWarning("Cannot remove disguise because essential gear is still equipped: aiFactionIndex = " + aiFactionIndex)
+  If FactionStates[aiFactionIndex]
+    ; if essential gear is still equipped, do not remove disguise
+    If IsKeySlotEquipped(aiFactionIndex)
+      LogInfo("Cannot remove disguise because key slot still equipped: aiFactionIndex = " + aiFactionIndex)
       Return
     EndIf
 
@@ -581,21 +488,21 @@ Function TryUpdateDisguise(Form akBaseObject)  ; used in event scope
   ; Attempts to update disguise and base faction memberships
 
   Int iCycles = 0
-  While Utility.IsInMenuMode()
+  While Utility.IsInMenuMode() || PlayerRef.IsInCombat()
     iCycles += 1
   EndWhile
 
-  Bool[] rgbPossibleDisguises = GetPossibleDisguisesByForm(akBaseObject)
+  Bool[] rgPossibleDisguises = TurtleClub.SearchListsForForm(DisguiseFormLists, akBaseObject)
 
-  If rgbPossibleDisguises.Find(True) == -1
+  If rgPossibleDisguises.Find(True) < 0
     LogWarning("Cannot update disguise because form not associated with disguise: " + akBaseObject)
     Return
   EndIf
 
   Int i = 0
 
-  While i < rgbPossibleDisguises.Length
-    If rgbPossibleDisguises[i]
+  While i < rgPossibleDisguises.Length
+    If rgPossibleDisguises[i]
       UpdateDisguise(i)
     EndIf
     i += 1
@@ -633,10 +540,10 @@ Event OnUpdate()
 
     ; for vampire night only feature
     ; try to add vampire disguise, needed for day/night cycle
-    Int iVampireDisguiseIndex = Global_iDisguiseEquippedVampire.GetValueInt()
+    Int iFactionIndex = Global_iDisguiseEquippedVampire.GetValue() as Int
 
-    If ArrayDisguisesVampire.Find(iVampireDisguiseIndex) > -1
-      UpdateDisguise(iVampireDisguiseIndex)
+    If rgVampireFactions.Find(iFactionIndex) > -1
+      UpdateDisguise(iFactionIndex)
     EndIf
   EndIf
 
@@ -646,7 +553,6 @@ EndEvent
 
 Event OnObjectEquipped(Form akBaseObject, ObjectReference akReference)
   Int iCycles = 0
-
   While Utility.IsInMenuMode() || PlayerRef.IsInCombat()
     iCycles += 1
   EndWhile
@@ -654,6 +560,8 @@ Event OnObjectEquipped(Form akBaseObject, ObjectReference akReference)
   Utility.Wait(1.0)
 
   If akBaseObject
+    FactionStates = TurtleClub.GetFactionStates(PlayerRef, DisguiseFactions)
+
     LogInfo("Trying to update disguise because the player equipped: " + akBaseObject)
     TryUpdateDisguise(akBaseObject)
   EndIf
@@ -662,35 +570,14 @@ EndEvent
 
 Event OnObjectUnequipped(Form akBaseObject, ObjectReference akReference)
   Int iCycles = 0
-
   While Utility.IsInMenuMode() || PlayerRef.IsInCombat()
     iCycles += 1
   EndWhile
 
   If akBaseObject
+    FactionStates = TurtleClub.GetFactionStates(PlayerRef, DisguiseFactions)
+
     LogInfo("Trying to update disguise because the player unequipped: " + akBaseObject)
     TryUpdateDisguise(akBaseObject)
-  EndIf
-EndEvent
-
-
-Event OnLocationChange(Location akOldLoc, Location akNewLoc)
-  If !JailQuest.IsRunning()
-    Return
-  EndIf
-
-  LocationAlias EscapeHold = JailQuest.GetAlias(6) as LocationAlias
-
-  If !PlayerRef.IsInLocation(EscapeHold.GetLocation())
-    Int iFactionIndex = ArrayDisguisesEnabled.Find(True)
-
-    If iFactionIndex < 0
-      Return
-    EndIf
-
-    If JailQuest.GetStage() < 100 && InIntRange(iFactionIndex, 18, 27)
-      JailQuest.SetStage(100)
-      EscapeJailQuest.CompleteQuest()
-    EndIf
   EndIf
 EndEvent

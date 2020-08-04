@@ -16,15 +16,18 @@
   </Variables>
   <Imports>
     <Import>F:\SDKs\SKSE\Scripts\Source</Import>
+    <Import>F:\repos\CommonLibSSE-Mathf\Scripts\Source</Import>
+    <Import>F:\repos\CommonLibSSE-TurtleClub\Scripts\Source</Import>
     <Import>https://api.github.com/repos/fireundubh/skyui/contents/dist/Data/Scripts/Source?ref=master</Import>
     <Import>@MyProject\scripts\Source</Import>
     <Import>@ScriptsDir\Base</Import>
   </Imports>
   <Scripts>
+    <Script>Mathf.psc</Script>
+    <Script>TurtleClub.psc</Script>
     <Script>dubhUtilityScript.psc</Script>
     <Script>dubhDisguiseMCMHelper.psc</Script>
     <Script>dubhDisguiseMCMQuestScript.psc</Script>
-    <Script>dubhDisguiseMCMStringUtil.psc</Script>
     <Script>dubhApplyingEffectScript.psc</Script>
     <Script>dubhCompatibilityQuestScript.psc</Script>
     <Script>dubhFactionEnemyScript.psc</Script>

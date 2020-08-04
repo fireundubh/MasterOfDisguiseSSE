@@ -76,11 +76,11 @@ Faction Property DisguiseFaction12 Auto  ; Thieves Guild
 Faction Property DisguiseFaction31 Auto  ; Bandits
 Faction Property DarkBrotherhoodFaction Auto
 Faction Property ThievesGuildFaction Auto
-Formlist Property BaseFactions Auto
-Formlist Property DisguiseFactions Auto
-Formlist Property DisguiseFormlists Auto
-Formlist Property GuardFactions Auto
-Formlist Property TrackedBounties Auto
+FormList Property BaseFactions Auto
+FormList Property DisguiseFactions Auto
+FormList Property DisguiseFormLists Auto
+FormList Property GuardFactions Auto
+FormList Property TrackedBounties Auto
 Quest Property CompatibilityQuest Auto
 Quest Property DetectionQuest Auto
 
@@ -97,25 +97,26 @@ String ModName
 ; FUNCTIONS
 ; =============================================================================
 
-Function _Log(String asTextToPrint)
+Function _Log(String asTextToPrint, Int aiSeverity = 0)
   If Global_iPapyrusLoggingEnabled.GetValue() as Bool
-    Debug.Trace("Master of Disguise: dubhDisguiseMCMQuestScript> " + asTextToPrint)
+    Debug.OpenUserLog("MasterOfDisguise")
+    Debug.TraceUser("MasterOfDisguise", "dubhDisguiseMCMQuestScript> " + asTextToPrint, aiSeverity)
   EndIf
 EndFunction
 
 
 Function LogInfo(String asTextToPrint)
-  _Log("[INFO] " + asTextToPrint)
+  _Log("[INFO] " + asTextToPrint, 0)
 EndFunction
 
 
 Function LogWarning(String asTextToPrint)
-  _Log("[WARN] " + asTextToPrint)
+  _Log("[WARN] " + asTextToPrint, 1)
 EndFunction
 
 
 Function LogError(String asTextToPrint)
-  _Log("[ERRO] " + asTextToPrint)
+  _Log("[ERRO] " + asTextToPrint, 2)
 EndFunction
 
 
@@ -161,33 +162,6 @@ Function ClearDisguiseFactions()
   EndWhile
 
   LogInfo("Removed the player from all disguise factions.")
-EndFunction
-
-
-Function SetFactionRelations(Formlist akFactions, Faction akTargetFaction, String asRelation)
-  ; Sets relations between a faction and ALL factions in a formlist with string
-
-  Int i = 0
-
-  While i < akFactions.GetSize()
-    Faction kFaction = akFactions.GetAt(i) as Faction
-
-    If asRelation == "Ally"
-      kFaction.SetAlly(akTargetFaction)
-      LogInfo(akTargetFaction + " is now allies with " + kFaction)
-    ElseIf asRelation == "Friend"
-      kFaction.SetAlly(akTargetFaction, True, True)
-      LogInfo(akTargetFaction + " is now friends with " + kFaction)
-    ElseIf asRelation == "Neutral"
-      kFaction.SetEnemy(akTargetFaction, True, True)
-      LogInfo(akTargetFaction + " is now neutral with " + kFaction)
-    ElseIf asRelation == "Enemy"
-      kFaction.SetEnemy(akTargetFaction)
-      LogInfo(akTargetFaction + " is now enemies with " + kFaction)
-    EndIf
-
-    i += 1
-  EndWhile
 EndFunction
 
 
@@ -259,7 +233,9 @@ Event OnPageReset(String asPageName)
   If asPageName == ""
     LoadCustomContent("dubhDisguiseLogo.dds")
     Return
-  Else
+  EndIf
+
+  If asPageName != ""
     UnloadCustomContent()
   EndIf
 
@@ -547,123 +523,123 @@ Event OnBooleanToggleClick(string asEventName, string strArg, float numArg, Form
   ElseIf asEventName == "dubhToggleGuardsVsDarkBrotherhood"
     bGuardsVsDarkBrotherhood = numArg as Bool
     If bGuardsVsDarkBrotherhood
-      SetFactionRelations(GuardFactions, DisguiseFaction03, "Enemy")
+      TurtleClub.SetEnemies(DisguiseFaction03, GuardFactions)
     Else
-      SetFactionRelations(GuardFactions, DisguiseFaction03, "Neutral")
+      TurtleClub.SetEnemies(DisguiseFaction03, GuardFactions, True, True)
     EndIf
   ElseIf asEventName == "dubhToggleGuardsVsDarkBrotherhoodNPC"
     bGuardsVsDarkBrotherhoodNPC = numArg as Bool
     If bGuardsVsDarkBrotherhoodNPC
-      SetFactionRelations(GuardFactions, DarkBrotherhoodFaction, "Enemy")
+      TurtleClub.SetEnemies(DarkBrotherhoodFaction, GuardFactions)
     Else
-      SetFactionRelations(GuardFactions, DarkBrotherhoodFaction, "Neutral")
+      TurtleClub.SetEnemies(DarkBrotherhoodFaction, GuardFactions, True, True)
     EndIf
   ElseIf asEventName == "dubhToggleGuardsVsThievesGuild"
     bGuardsVsThievesGuild = numArg as Bool
     If bGuardsVsThievesGuild
-      SetFactionRelations(GuardFactions, DisguiseFaction12, "Enemy")
+      TurtleClub.SetEnemies(DisguiseFaction12, GuardFactions)
     Else
-      SetFactionRelations(GuardFactions, DisguiseFaction12, "Neutral")
+      TurtleClub.SetEnemies(DisguiseFaction12, GuardFactions, True, True)
     EndIf
   ElseIf asEventName == "dubhToggleGuardsVsThievesGuildNPC"
     bGuardsVsThievesGuildNPC = numArg as Bool
     If bGuardsVsThievesGuildNPC
-      SetFactionRelations(GuardFactions, ThievesGuildFaction, "Enemy")
+      TurtleClub.SetEnemies(ThievesGuildFaction, GuardFactions)
     Else
-      SetFactionRelations(GuardFactions, ThievesGuildFaction, "Neutral")
+      TurtleClub.SetEnemies(ThievesGuildFaction, GuardFactions, True, True)
     EndIf
   ElseIf asEventName == "CheatAddDisguise01" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(0) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(0) as FormList, 1, True)
     LogInfo("Added items from Blades formlist.")
   ElseIf asEventName == "CheatAddDisguise02" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(1) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(1) as FormList, 1, True)
     LogInfo("Added items from Cultists formlist.")
   ElseIf asEventName == "CheatAddDisguise03" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(2) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(2) as FormList, 1, True)
     LogInfo("Added items from Dark Brotherhood formlist.")
   ElseIf asEventName == "CheatAddDisguise04" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(3) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(3) as FormList, 1, True)
     LogInfo("Added items from Dawnguard formlist.")
   ElseIf asEventName == "CheatAddDisguise05" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(4) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(4) as FormList, 1, True)
     LogInfo("Added items from Forsworn formlist.")
   ElseIf asEventName == "CheatAddDisguise06" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(5) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(5) as FormList, 1, True)
     LogInfo("Added items from Imperial Legion formlist.")
   ElseIf asEventName == "CheatAddDisguise07" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(6) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(6) as FormList, 1, True)
     LogInfo("Added items from Morag Tong formlist.")
   ElseIf asEventName == "CheatAddDisguise08" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(7) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(7) as FormList, 1, True)
     LogInfo("Added items from Penitus Oculatus formlist.")
   ElseIf asEventName == "CheatAddDisguise09" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(8) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(8) as FormList, 1, True)
     LogInfo("Added items from Silver Hand formlist.")
   ElseIf asEventName == "CheatAddDisguise10" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(9) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(9) as FormList, 1, True)
     LogInfo("Added items from Stormcloaks formlist.")
   ElseIf asEventName == "CheatAddDisguise11" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(10) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(10) as FormList, 1, True)
     LogInfo("Added items from Thalmor formlist.")
   ElseIf asEventName == "CheatAddDisguise12" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(11) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(11) as FormList, 1, True)
     LogInfo("Added items from Thieves Guild formlist.")
   ElseIf asEventName == "CheatAddDisguise13" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(12) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(12) as FormList, 1, True)
     LogInfo("Added items from Vigil of Stendarr formlist.")
   ElseIf asEventName == "CheatAddDisguise14" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(13) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(13) as FormList, 1, True)
     LogInfo("Added items from Volkihar Clan formlist.")
   ElseIf asEventName == "CheatAddDisguise15" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(14) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(14) as FormList, 1, True)
     LogInfo("Added items from Necromancers formlist.")
   ElseIf asEventName == "CheatAddDisguise16" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(15) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(15) as FormList, 1, True)
     LogInfo("Added items from Vampires formlist.")
   ElseIf asEventName == "CheatAddDisguise17" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(16) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(16) as FormList, 1, True)
     LogInfo("Added items from Werewolves formlist.")
   ElseIf asEventName == "CheatAddDisguise18" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(17) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(17) as FormList, 1, True)
     LogInfo("Added items from Companions formlist.")
   ElseIf asEventName == "CheatAddDisguise19" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(18) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(18) as FormList, 1, True)
     LogInfo("Added items from Falkreath Guard formlist.")
   ElseIf asEventName == "CheatAddDisguise20" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(19) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(19) as FormList, 1, True)
     LogInfo("Added items from Hjaalmarch Guard formlist.")
   ElseIf asEventName == "CheatAddDisguise21" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(20) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(20) as FormList, 1, True)
     LogInfo("Added items from Markarth Guard formlist.")
   ElseIf asEventName == "CheatAddDisguise22" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(21) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(21) as FormList, 1, True)
     LogInfo("Added items from Pale Guard formlist.")
   ElseIf asEventName == "CheatAddDisguise23" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(22) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(22) as FormList, 1, True)
     LogInfo("Added items from Raven Rock Guard formlist.")
   ElseIf asEventName == "CheatAddDisguise24" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(23) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(23) as FormList, 1, True)
     LogInfo("Added items from Riften Guard formlist.")
   ElseIf asEventName == "CheatAddDisguise25" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(24) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(24) as FormList, 1, True)
     LogInfo("Added items from Solitude Guard formlist.")
   ElseIf asEventName == "CheatAddDisguise26" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(25) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(25) as FormList, 1, True)
     LogInfo("Added items from Whiterun Guard formlist.")
   ElseIf asEventName == "CheatAddDisguise27" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(26) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(26) as FormList, 1, True)
     LogInfo("Added items from Windhelm Guard formlist.")
   ElseIf asEventName == "CheatAddDisguise28" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(27) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(27) as FormList, 1, True)
     LogInfo("Added items from Winterhold Guard formlist.")
   ElseIf asEventName == "CheatAddDisguise29" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(28) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(28) as FormList, 1, True)
     LogInfo("Added items from Daedric Influence formlist.")
   ElseIf asEventName == "CheatAddDisguise30" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(29) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(29) as FormList, 1, True)
     LogInfo("Added items from Alik'r Mercenaries formlist.")
   ElseIf asEventName == "CheatAddDisguise31" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormlists.GetAt(30) as FormList, 1, True)
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(30) as FormList, 1, True)
     LogInfo("Added items from Bandits formlist.")
   EndIf
 EndEvent

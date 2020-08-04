@@ -14,6 +14,7 @@ GlobalVariable Property Global_iPapyrusLoggingEnabled Auto
 
 Actor Property PlayerRef Auto
 FormList Property BaseFactions Auto
+FormList Property DisguiseFactions Auto
 FormList Property ExcludedActors Auto
 FormList Property ExcludedFactions Auto
 Spell Property MonitorAbility Auto
@@ -23,74 +24,60 @@ Spell Property MonitorAbility Auto
 ; =============================================================================
 
 Actor NPC
+Bool[] FactionStatesPlayer
+Bool[] FactionStatesTarget
 
 ; =============================================================================
 ; FUNCTIONS
 ; =============================================================================
 
-Function _Log(String asTextToPrint)
+Function _Log(String asTextToPrint, Int aiSeverity = 0)
   If Global_iPapyrusLoggingEnabled.GetValue() as Bool
-    Debug.Trace("Master of Disguise: dubhApplyingEffectScript> " + asTextToPrint)
+    Debug.OpenUserLog("MasterOfDisguise")
+    Debug.TraceUser("MasterOfDisguise", "dubhApplyingEffectScript> " + asTextToPrint, aiSeverity)
   EndIf
 EndFunction
 
 
 Function LogInfo(String asTextToPrint)
-  _Log("[INFO] " + asTextToPrint)
+  _Log("[INFO] " + asTextToPrint, 0)
 EndFunction
 
 
 Function LogWarning(String asTextToPrint)
-  _Log("[WARN] " + asTextToPrint)
+  _Log("[WARN] " + asTextToPrint, 1)
 EndFunction
 
 
 Function LogError(String asTextToPrint)
-  _Log("[ERRO] " + asTextToPrint)
+  _Log("[ERRO] " + asTextToPrint, 2)
 EndFunction
 
 
-Bool Function ActorIsExcludedByAnyKeyword(Actor akActor, FormList akKeywords)
+Int Function FindActiveDisguise()
+  ; Returns the index of the active disguise faction when player and NPC are in matching factions
+
+  If !TurtleClub.ActorIsInAnyFaction(PlayerRef, DisguiseFactions)
+    Return -1
+  EndIf
+
+  If NPC && !TurtleClub.ActorIsInAnyFaction(NPC, BaseFactions)
+    Return -1
+  EndIF
+
   Int i = 0
 
-  While i < akKeywords.GetSize()
-    If akActor.HasKeyword(akKeywords.GetAt(i) as Keyword)
-      Return True
+  While i < FactionStatesPlayer.Length && NPC
+    If FactionStatesPlayer[i] && FactionStatesTarget[i]
+      If NPC && TurtleClub.ActorIsInFaction(NPC, BaseFactions.GetAt(i) as Faction)
+        Return i
+      EndIf
     EndIf
 
     i += 1
   EndWhile
 
-  Return False
-EndFunction
-
-
-Bool Function ActorIsInAnyBaseFaction(Actor akActor)
-  Int i = 0
-
-  While i < BaseFactions.GetSize()
-    If ActorIsInFaction(akActor, BaseFactions.GetAt(i) as Faction)
-      Return True
-    EndIf
-    i += 1
-  EndWhile
-
-  Return False
-EndFunction
-
-
-Bool Function ActorIsInAnyFaction(Actor akActor, FormList akFactions)
-  Int i = 0
-
-  While i < akFactions.GetSize()
-    If ActorIsInFaction(akActor, akFactions.GetAt(i) as Faction)
-      Return True
-    EndIf
-
-    i += 1
-  EndWhile
-
-  Return False
+  Return -1
 EndFunction
 
 ; =============================================================================
@@ -101,56 +88,58 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
   NPC = akTarget
 
   If !(Global_iDiscoveryEnabled.GetValue() as Bool)
+    LogInfo("Cannot attach monitor because the discovery system is disabled")
     NPC = None
     Return
   EndIf
 
-  If PlayerRef.IsDead()
-    NPC = None
-    Return
-  EndIf
-
-  If NPC.IsDead()
+  If !TurtleClub.ActorIsInAnyFaction(PlayerRef, DisguiseFactions)
+    LogInfo("Cannot attach monitor because Player is not in any disguise factions")
     NPC = None
     Return
   EndIf
 
   If NPC.HasSpell(MonitorAbility)
+    LogInfo("Cannot attach monitor because NPC monitor already attached: " + NPC)
     NPC = None
     Return
   EndIf
 
-  If NPC.GetRelationshipRank(PlayerRef) > 0
+  If Global_iAlwaysSucceedDremora.GetValue() as Bool && TurtleClub.ActorIsInFaction(NPC, BaseFactions.GetAt(28) as Faction)
+    LogInfo("Cannot attach monitor because NPC is a dremora and always succeed vs. dremora is enabled: " + NPC)
     NPC = None
     Return
   EndIf
 
-  If NPC.GetDistance(PlayerRef) > Global_fLOSDistanceMax.GetValue()
+  If Global_iAlwaysSucceedWerewolves.GetValue() as Bool && TurtleClub.ActorIsInFaction(NPC, BaseFactions.GetAt(16) as Faction)
+    LogInfo("Cannot attach monitor because NPC is a werewolf and always succeed vs. werewolves is enabled: " + NPC)
     NPC = None
     Return
   EndIf
 
-  If Global_iAlwaysSucceedDremora.GetValue() as Bool && ActorIsInFaction(NPC, BaseFactions.GetAt(28) as Faction)
+  If TurtleClub.ActorIsInAnyFaction(NPC, ExcludedFactions)
+    LogInfo("Cannot attach monitor because NPC is an excluded faction: " + NPC)
     NPC = None
     Return
   EndIf
 
-  If Global_iAlwaysSucceedWerewolves.GetValue() as Bool && ActorIsInFaction(NPC, BaseFactions.GetAt(16) as Faction)
+  If TurtleClub.ActorHasAnyKeyword(NPC, ExcludedActors)
+    LogInfo("Cannot attach monitor because NPC has an excluded keyword: " + NPC)
     NPC = None
     Return
   EndIf
 
-  If ActorIsInAnyFaction(NPC, ExcludedFactions)
+  If !TurtleClub.ActorIsInAnyFaction(NPC, BaseFactions)
+    LogInfo("Cannot attach monitor because NPC is not in any base factions: " + NPC)
     NPC = None
     Return
   EndIf
 
-  If ActorIsExcludedByAnyKeyword(NPC, ExcludedActors)
-    NPC = None
-    Return
-  EndIf
+  FactionStatesPlayer = TurtleClub.GetFactionStates(PlayerRef, DisguiseFactions)
+  FactionStatesTarget = TurtleClub.GetFactionStates(NPC, BaseFactions)
 
-  If !ActorIsInAnyBaseFaction(NPC)
+  If FindActiveDisguise() < 0
+    LogInfo("Cannot attach monitor because Player and NPC are not in matching factions: " + NPC)
     NPC = None
     Return
   EndIf

@@ -17,25 +17,26 @@ Faction Property VampireThrallFaction Auto
 ; FUNCTIONS
 ; =============================================================================
 
-Function _Log(String asTextToPrint)
+Function _Log(String asTextToPrint, Int aiSeverity = 0)
   If Global_iPapyrusLoggingEnabled.GetValue() as Bool
-    Debug.Trace("Master of Disguise: dubhCompatibilityQuestScript> " + asTextToPrint)
+    Debug.OpenUserLog("MasterOfDisguise")
+    Debug.TraceUser("MasterOfDisguise", "Master of Disguise: dubhCompatibilityQuestScript> " + asTextToPrint, aiSeverity)
   EndIf
 EndFunction
 
 
 Function LogInfo(String asTextToPrint)
-  _Log("[INFO] " + asTextToPrint)
+  _Log("[INFO] " + asTextToPrint, 0)
 EndFunction
 
 
 Function LogWarning(String asTextToPrint)
-  _Log("[WARN] " + asTextToPrint)
+  _Log("[WARN] " + asTextToPrint, 1)
 EndFunction
 
 
 Function LogError(String asTextToPrint)
-  _Log("[ERRO] " + asTextToPrint)
+  _Log("[ERRO] " + asTextToPrint, 2)
 EndFunction
 
 

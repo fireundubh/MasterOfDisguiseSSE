@@ -5,7 +5,6 @@ ScriptName dubhDisguiseMCMHelper Extends SKI_ConfigBase
 ;If a child implements MCM events, they must call Parent.eventname(args....) to pass the call up to this class.
 
 Import Debug
-Import dubhDisguiseMCMStringUtil
 Import StringUtil
 Import Math
 
@@ -56,10 +55,10 @@ Event OnConfigManagerReadyMCMHelper(String a_eventName, String a_strArg, Float a
 EndEvent
 
 Int Function DefineMCMToggleOption(String sTextLabel, Bool bInitialState = False, Int iFlags = 0, String sHelpInfo = "", String sModEvent = "")
-  ;A single line of code that sets up a menu item for toggling value of a GlobalVariable without all the event handling stuff
-  ;just add to OnPageReset area
+  ; A single line of code that sets up a menu item for toggling value of a GlobalVariable without all the event handling stuff
+  ; just add to OnPageReset area
   Int iOID = AddToggleOption(sTextLabel, bInitialState, iFlags) % 128 ;- iOIDOffset
-  ;Trace("JaxonzMCMHelper::DefineMCMToggleOption, iOID:" + iOID + ", iOID % 128:" + iOID % 128 + ", iOID - iOIDOffset:" + (iOID - iOIDOffset))
+
   sLabels[iOID] = sTextLabel
   sHelpInfos[iOID] = sHelpInfo
   bBoolVals[iOID] = bInitialState
@@ -69,21 +68,24 @@ Int Function DefineMCMToggleOption(String sTextLabel, Bool bInitialState = False
 EndFunction
 
 Int Function DefineMCMToggleOptionGlobal(String sTextLabel, GlobalVariable gToggleVar, Int iFlags = 0, String sHelpInfo = "", String sModEvent = "")
-  ;A single line of code that sets up a menu item for toggling value of a GlobalVariable without all the event handling stuff
-  ;just add to OnPageReset area
-  Int iOID = DefineMCMToggleOption(sTextLabel, gToggleVar.GetValueInt() as Bool, iFlags, sHelpInfo, sModEvent) % 128  ;
+  ; A single line of code that sets up a menu item for toggling value of a GlobalVariable without all the event handling stuff
+  ; just add to OnPageReset area
+
+  Int iOID = DefineMCMToggleOption(sTextLabel, gToggleVar.GetValueInt() as Bool, iFlags, sHelpInfo, sModEvent) % 128
+
   gGlobalVars[iOID] = gToggleVar
   iOptionTypes[iOID] = kToggle  ;Global
   Return iOID
 EndFunction
 
 Int Function DefineMCMToggleOptionGlobalBitmask(String sTextLabel, GlobalVariable gToggleVar, Int iBitmask, Int iFlags = 0, String sHelpInfo = "", String sModEvent = "")
-;A single line of code that sets up a menu item for toggling value of a bitmask value within a GlobalVariable without all the event handling stuff
-;just add to OnPageReset area
-;NOTE: DUE TO FLOAT ROUNDING OF GlobalVariables, THIS FUNCTION ONLY SUPPORTS BITMASKS UP TO 0x100000 (= 21 DIFFERENT BIT VALUES)
-;Trace("DefineMCMToggleOptionGlobalBitmask sTextLabel:" + sTextLabel + ", gToggleVar.GetValue():" + gToggleVar.GetValue() + ", iBitmask:" + iBitmask)
+  ; A single line of code that sets up a menu item for toggling value of a bitmask value within a GlobalVariable without all the event handling stuff
+  ; just add to OnPageReset area
+  ; NOTE: DUE TO FLOAT ROUNDING OF GlobalVariables, THIS FUNCTION ONLY SUPPORTS BITMASKS UP TO 0x100000 (= 21 DIFFERENT BIT VALUES)
+
   Bool bVal = LogicalAnd(gToggleVar.GetValue() as Int, iBitMask) as Bool
-  Int iOID = DefineMCMToggleOption(sTextLabel, bVal, iFlags, sHelpInfo, sModEvent) % 128  ;
+  Int iOID = DefineMCMToggleOption(sTextLabel, bVal, iFlags, sHelpInfo, sModEvent) % 128
+
   gGlobalVars[iOID] = gToggleVar
   bBoolVals[iOID] = bVal
   iOptionTypes[iOID] = kToggleGlobalBitmask
@@ -93,7 +95,7 @@ EndFunction
 
 Int Function DefineMCMSliderOption(String sTextLabel, Float fValue, Float fDefault, Float fMin, Float fMax, Float fInterval, String sHelpInfo = "", String formatString = "{0}", Int flags = 0, String sModEvent = "")
   Int iOID = AddSliderOption(sTextLabel, fValue, formatString, flags) % 128 ; - iOIDOffset
-  ;Trace("JaxonzMCMHelper::DefineMCMSliderOption, iOID:" + iOID)
+
   sLabels[iOID] = sTextLabel
   sHelpInfos[iOID] = sHelpInfo
   fFloatVals[iOID] = fValue
@@ -108,7 +110,8 @@ Int Function DefineMCMSliderOption(String sTextLabel, Float fValue, Float fDefau
 EndFunction
 
 Int Function DefineMCMSliderOptionGlobal(String sTextLabel, GlobalVariable gSliderVar, Float fDefault, Float fMin, Float fMax, Float fInterval, String sHelpInfo = "", String formatString = "{0}", Int flags = 0, String sModEvent = "")
-  Int iOID = DefineMCMSliderOption(sTextLabel, gSliderVar.GetValue(), fDefault, fMin, fMax, fInterval, sHelpInfo, formatString, flags, sModEvent) % 128 ;
+  Int iOID = DefineMCMSliderOption(sTextLabel, gSliderVar.GetValue(), fDefault, fMin, fMax, fInterval, sHelpInfo, formatString, flags, sModEvent) % 128
+
   gGlobalVars[iOID] = gSliderVar
   iOptionTypes[iOID] = kSliderGlobal
   return iOID
@@ -116,7 +119,7 @@ EndFunction
 
 Int Function DefineMCMKeymapOption(String sTextLabel, Int iKeyCode, Int iFlags = 0, Int iDefault, String sHelpInfo = "", String sKeyConflict = "", string sModEvent = "")
   Int iOID = AddKeyMapOption(sTextLabel, iKeyCode, iFlags) % 128  ; - iOIDOffset
-;Trace("JaxonzMCMHelper::DefineMCMKeymapOption, iOID:" + iOID)
+
   iOptionTypes[iOID] = kKeyMap
   sLabels[iOID] = sTextLabel
   sHelpInfos[iOID] = sHelpInfo
@@ -128,7 +131,8 @@ Int Function DefineMCMKeymapOption(String sTextLabel, Int iKeyCode, Int iFlags =
 EndFunction
 
 Int Function DefineMCMKeymapOptionGlobal(String sTextLabel, GlobalVariable gGlobalVar, Int iFlags = 0, Int iDefault = -1, String sHelpInfo = "", String sKeyConflict = "", String sModEvent = "")
-  Int iOID = DefineMCMKeymapOption(sTextLabel, gGlobalVar.GetValueInt(), iFlags, iDefault, sHelpInfo, sKeyConflict, sModEvent) % 128  ;
+  Int iOID = DefineMCMKeymapOption(sTextLabel, gGlobalVar.GetValueInt(), iFlags, iDefault, sHelpInfo, sKeyConflict, sModEvent) % 128
+
   gGlobalVars[iOID] = gGlobalVar
   iOptionTypes[iOID] = kKeyMapGlobal
   Return iOID
@@ -136,7 +140,7 @@ EndFunction
 
 Int Function DefineMCMTextOption(String sTextLabel, String sValue, Int iFlags = 0, String sHelpInfo = "", String sModEvent = "")
   Int iOID = AddTextOption(sTextLabel, sValue, iFlags) % 128  ; - iOIDOffset
-  ;Trace("JaxonzMCMHelper::DefineMCMTextOption, iOID:" + iOID)
+
   iOptionTypes[iOID] = kText
   sLabels[iOID] = sTextLabel
   sHelpInfos[iOID] = sHelpInfo
@@ -145,12 +149,12 @@ Int Function DefineMCMTextOption(String sTextLabel, String sValue, Int iFlags = 
   Return iOID
 EndFunction
 
-Int Property    OPTION_FLAG_AS_TEXTTOGGLE = 0x64 AutoReadonly ;show a menu alternatively as a toggling value text option
+Int Property OPTION_FLAG_AS_TEXTTOGGLE = 0x64 AutoReadonly ;show a menu alternatively as a toggling value text option
 
 Int Function DefineMCMMenuOption(String sTextLabel, String sValuesCSV, Int iSelected = 0, Int iDefault = 0, Int iFlags = 0, String sHelpInfo = "", String sModEvent = "")
   Int iOID
-  String[] sValues
-  sValues = ParseCSVtoArray(sValuesCSV)
+  String[] sValues = TurtleClub.SplitString(sValuesCSV, ",")
+
   If Math.LogicalAnd(iFlags, OPTION_FLAG_AS_TEXTTOGGLE)
     iOID = AddTextOption(sTextLabel, sValues[iSelected], iFlags) % 128  ; - iOIDOffset
     iOptionTypes[iOID] = kTextToggle
@@ -159,7 +163,7 @@ Int Function DefineMCMMenuOption(String sTextLabel, String sValuesCSV, Int iSele
     iOptionTypes[iOID] = kMenu
     SetMenuOptionValue(iOID, sValues[iSelected])
   EndIf
-  ;Trace("JaxonzMCMHelper::DefineMCMMenuOption, iOID:" + iOID)
+
   iIntVals[iOID] = iSelected
   sLabels[iOID] = sTextLabel
   sHelpInfos[iOID] = sHelpInfo
@@ -176,31 +180,17 @@ Int Function DefineMCMMenuOptionGlobal(String sTextLabel, String sValuesCSV, Glo
   Return iOID
 EndFunction
 
-Function DefineMCMParagraph(String sText, Int flags = 0x1)  ;disabled type text by default
-;display a paragraph of text, parsing for long lines and newlines
-;Trace("JaxonzMCMHelper::DefineMCMParagraph, sText:" + sText)
-  Int iMaxLength = 47
+Function DefineMCMParagraph(String asText, Int aiFlags = 0x1)  ;disabled type text by default
+  ;display a paragraph of text, parsing for long lines and newlines
+
+  String sWrapped = TurtleClub.WrapString(asText, 47)
+  String[] rgLines = TurtleClub.SplitString(sWrapped, "\n")
+
   Int i = 0
-  Int iFound  ;used for location of found character
-  While GetLength(sText) > iMaxLength
-    iFound = Find(sText, "\n")
-    If (iFound < iMaxLength) && (iFound != -1)  ;if there's a newline character shorter than max line length
-      AddTextOption(SubString(sText, 0, iFound), "", flags)
-      sText = SubString(sText, iFound + 1)  ;shorten the text string as we go
-    Else
-      iFound = iMaxLength
-      While (GetNthChar(sText, iFound) != " ") || (iFound < 0)  ;find the furthest space character starting from max line length and working backwards
-        iFound -= 1
-      EndWhile
-      If iFound < 0 ;just in case there's no space at all, break the line at max line length
-        iFound = iMaxLength
-      EndIf
-      AddTextOption(SubString(sText, 0, iFound), "", flags)
-      sText = SubString(sText, iFound + 1)  ;shorten the text string as we go
-    EndIf
+  While i < rgLines.Length
+    AddTextOption(rgLines[i], "", aiFlags)
+    i += 1
   EndWhile
-  AddTextOption(sText, "", flags) ;send the last line
-;Trace("JaxonzMCMHelper::DefineMCMParagraph, ending")
 EndFunction
 
 Int Function DefineMCMHelpTopic(String sTopic, String sHelpInfo = "")
@@ -224,8 +214,7 @@ EndFunction
 String Function GetMCMValueString(String sTextLabel)
   Int iOID = GetMCMiOID(sTextLabel)
   If (iOptionTypes[iOID] == kMenu) || (iOptionTypes[iOID] == kTextToggle)
-    String[] sValues
-    sValues = ParseCSVtoArray(sStringVals[iOID])
+    String[] sValues = TurtleClub.SplitString(sStringVals[iOID], ",")
     Return sValues[iIntVals[iOID]]
   Else
     Return sStringVals[iOID]
@@ -247,19 +236,14 @@ EndFunction
 ;if child uses any of these events, they should call Parent.eventname(args,...) as part of their function or the event will be masked
 
 Event OnOptionSelect(Int iMCMOID)
-  ;Trace("JaxonzMCMHelper::OnOptionSelect, iOID:" + iOID + ", iOID % 128:" + iOID % 128 + ", iOID - iOIDOffset:" + (iOID - iOIDOffset))
   Int iOID = iMCMOID  % 128 ;-= iOIDOffset
-  ;Trace("JaxonzMCMHelper::OnOptionSelect, iOID:" + iOID) ; + ", iOptionTypes[iOID]:" + iOptionTypes[iOID] + ", iOIDOffset:" + iOIDOffset)
   If iOptionTypes[iOID] == kTextToggle
-    String[] sValues
-    sValues = ParseCSVtoArray(sStringVals[iOID])
+    String[] sValues = TurtleClub.SplitString(sStringVals[iOID], ",")
     iIntVals[iOID] = (iIntVals[iOID] + 1) % sValues.Length
     If gGlobalVars[iOID]
       gGlobalVars[iOID].SetValue(iIntVals[iOID] as Float)
     EndIf
     SetTextOptionValue(iMCMOID, sValues[iIntVals[iOID]])
-  ;ElseIf iOptionTypes[iOID] == kText
-  ;do nothing
   ElseIf iOptionTypes[iOID] == kToggle
     bBoolVals[iOID] = !bBoolVals[iOID]
     SetToggleOptionValue(iMCMOID, bBoolVals[iOID])
@@ -270,21 +254,17 @@ Event OnOptionSelect(Int iMCMOID)
     bBoolVals[iOID] = !bBoolVals[iOID]
     SetToggleOptionValue(iMCMOID, bBoolVals[iOID])
     gGlobalVars[iOID].SetValue(logicalOr(logicalAnd(gGlobalVars[iOID].GetValueInt(), logicalNot(iBitMasks[iOID])), (iBitMasks[iOID] * (bBoolVals[iOID] as int))) as float)
-  ;Trace("JaxonzMCMHelper::OnOptionSelect kGlobalBitmask iOID:" + iOID + ", sLabels[iOID]:" + sLabels[iOID] + ", bBoolVals[iOID]:" + bBoolVals[iOID] + ", gGlobalVars[iOID].GetValueInt():" + gGlobalVars[iOID].GetValueInt() + ", iBitmasks[iOID]:" + iBitmasks[iOID])
   EndIf
-  ; scrChild.OnOptionSelect(iOID + iOIDOffset)
   DispatchModEvent(iOID)
 EndEvent
 
 Event OnOptionHighlight(Int iOID)
   iOID = iOID  % 128  ; -= iOIDOffset
-;Trace("JaxonzMCMHelper::OnOptionHighlight, iOID:" + iOID)
   SetInfoText(sHelpInfos[iOID])
 EndEvent
 
 Event OnOptionSliderOpen(Int iOID)
   iOID = iOID  % 128  ; -= iOIDOffset
-  ;Trace("JaxonzMCMHelper::OnOptionSliderOpen, iOID:" + iOID)
   SetSliderDialogStartValue(fFloatVals[iOID])
   SetSliderDialogDefaultValue(fSliderDefaults[iOID])
   SetSliderDialogRange(fSliderMins[iOID], fSliderMaxs[iOID])
@@ -293,7 +273,6 @@ EndEvent
 
 Event OnOptionSliderAccept(Int iMCMOID, Float value)
   Int iOID = iMCMOID  % 128 ; -= iOIDOffset
-;Trace("JaxonzMCMHelper::OnOptionSliderAccept iOID:" + iOID + ", value:" + value)
   fFloatVals[iOID] = value
   If gGlobalVars[iOID]
     gGlobalVars[iOID].SetValue(value)
@@ -304,7 +283,6 @@ EndEvent
 
 Event OnOptionDefault(Int iMCMOID)
   Int iOID = iMCMOID  % 128 ; -= iOIDOffset
-  ;Trace("JaxonzMCMHelper::OnOptionDefault, iOID:" + iOID)
   If iOptionTypes[iOID] == kSlider
     OnOptionSliderAccept(iMCMOID, fSliderDefaults[iOID])
   ElseIf iOptionTypes[iOID] == kKeyMap || iOptionTypes[iOID] == kKeyMapGlobal
@@ -314,7 +292,6 @@ EndEvent
 
 event OnOptionKeyMapChange(Int iMCMOID, Int KeyCode, String conflictControl, String conflictName)
   Int iOID = iMCMOID  % 128 ; -= iOIDOffset
-  ;Trace("JaxonzMCMHelper::OnOptionKeyMapChange iOID:" + iOID + ", KeyCode:" + KeyCode)
   If (conflictControl != "") && !ShowMessage("This key is already mapped to:\n\"" + conflictControl + "\"\n(" + conflictName + ")\n\nAre you sure you want to continue?", true, "Yes", "No")
     ; If conflict avoided
   Else
@@ -329,17 +306,14 @@ EndEvent
 
 Event OnOptionMenuOpen(Int iOID)
   iOID = iOID  % 128  ; -= iOIDOffset
-;Trace("JaxonzMCMHelper::OnOptionMenuOpen, iOID:" + iOID)
-  SetMenuDialogOptions(ParseCSVtoArray(sStringVals[iOID]))
+  SetMenuDialogOptions(TurtleClub.SplitString(sStringVals[iOID], ","))
   SetMenuDialogStartIndex(iIntVals[iOID])
   SetMenuDialogDefaultIndex(fSliderDefaults[iOID] as Int)
 EndEvent
 
 Event OnOptionMenuAccept(Int iMCMOID, Int index)
   Int iOID = iMCMOID  % 128 ; -= iOIDOffset
-;Trace("JaxonzMCMHelper::OnOptionMenuAccept iOID:" + iOID + ", index:" + index)
-  String[] sValues
-  sValues = ParseCSVtoArray(sStringVals[iOID])
+  String[] sValues = TurtleClub.SplitString(sStringVals[iOID], ",")
   iIntVals[iOID] = index
   If gGlobalVars[iOID]
     gGlobalVars[iOID].SetValue(index as Float)
@@ -351,7 +325,6 @@ EndEvent
 
 Bool Function DispatchModEvent(Int iOID)
 ;sent ModEvent calls to the child or any listener
-;Trace("JaxonzMCMHelper::DispatchModEvent iOID:" + iOID )
 ;dispatch any ModEvents
   iOID = iOID % 128
   If sModEvents[iOID] != ""
@@ -381,7 +354,6 @@ EndFunction
 
 Event OnPageSelect(String a_eventName, String a_page, Float a_index, Form a_sender)
 ;listen for this ModEvent and to reinitialize the page
-;trace("JaxonzMCMHelper::OnPageSelect, a_page:" + a_page + ", a_index:" + a_index)
   InitArrays()
 EndEvent
 
