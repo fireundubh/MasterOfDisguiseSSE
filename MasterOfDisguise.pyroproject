@@ -48,6 +48,7 @@
     <ZipFile Name="@ModName" RootDir="@MyProject" Compression="deflate">
       <Include NoRecurse="true">*/*.esp</Include>
       <Include NoRecurse="true">*.bsa</Include>
+      <Include>**/SKSE/*.*</Include>
       <Include>**/Strings/*.*</Include>
     </ZipFile>
     <ZipFile Name="@ModName - English" RootDir="@MyProject" Compression="deflate">
