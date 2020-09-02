@@ -301,19 +301,15 @@ EndFunction
 
 
 Function ShowMessageChain()
-  Int i = 0
+  If Global_iTutorialCompleted.GetValue() as Int == 1
+    Return
+  EndIf
 
-  While i < MessageChain.Length
-    Message kMessage = MessageChain[i] as Message
+  Global_iTutorialCompleted.SetValue(1)
 
-    If !(kMessage.Show() == 0)
-      Return
-    EndIf
-
-    i += 1
-  EndWhile
-
-  Global_iTutorialCompleted.SetValueInt(1)
+  (MessageChain[0] as Message).Show()
+  (MessageChain[1] as Message).Show()
+  (MessageChain[2] as Message).Show()
 EndFunction
 
 
@@ -347,10 +343,6 @@ Function AddDisguise(Int aiFactionIndex)
       (DisguiseMessageOn.GetAt(aiFactionIndex) as Message).Show()
     EndIf
 
-    If !(Global_iTutorialCompleted.GetValue() as Bool)
-      ShowMessageChain()
-    EndIf
-
     FactionStates[aiFactionIndex] = True
 
     ; TODO: if faction is a guard disguise, save bounties to crime gold arrays and clear actual crime gold
@@ -358,6 +350,10 @@ Function AddDisguise(Int aiFactionIndex)
       ; save bounties to crime gold arrays
       ; clear actual crime gold
     ;EndIf
+  EndIf
+
+  If FactionStates[aiFactionIndex]
+    ShowMessageChain()
   EndIf
 EndFunction
 
@@ -505,9 +501,11 @@ Function TryUpdateDisguise(Form akBaseObject)  ; used in event scope
     If rgPossibleDisguises[i]
       UpdateDisguise(i)
     EndIf
+
     i += 1
   EndWhile
 EndFunction
+
 
 ; =============================================================================
 ; EVENTS
@@ -552,9 +550,10 @@ EndEvent
 
 
 Event OnObjectEquipped(Form akBaseObject, ObjectReference akReference)
-  Int iCycles = 0
+  Int _cycles = 0
+
   While Utility.IsInMenuMode() || PlayerRef.IsInCombat()
-    iCycles += 1
+    _cycles += 1
   EndWhile
 
   Utility.Wait(1.0)
@@ -569,9 +568,10 @@ EndEvent
 
 
 Event OnObjectUnequipped(Form akBaseObject, ObjectReference akReference)
-  Int iCycles = 0
+  Int _cycles = 0
+
   While Utility.IsInMenuMode() || PlayerRef.IsInCombat()
-    iCycles += 1
+    _cycles += 1
   EndWhile
 
   If akBaseObject
