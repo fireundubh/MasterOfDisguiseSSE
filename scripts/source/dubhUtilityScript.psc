@@ -4,16 +4,18 @@ ScriptName dubhUtilityScript
 Bool Function TryAddToFaction(Actor akActor, Faction akFaction) Global
   If !akActor.IsInFaction(akFaction)
     akActor.AddToFaction(akFaction)
+    Return akActor.IsInFaction(akFaction)
   EndIf
-  Return akActor.IsInFaction(akFaction)
+  Return False
 EndFunction
 
 
 Bool Function TryRemoveFromFaction(Actor akActor, Faction akFaction) Global
   If akActor.IsInFaction(akFaction)
     akActor.RemoveFromFaction(akFaction)
+    Return !akActor.IsInFaction(akFaction)
   EndIf
-  Return !akActor.IsInFaction(akFaction)
+  Return False
 EndFunction
 
 ; =============================================================================
