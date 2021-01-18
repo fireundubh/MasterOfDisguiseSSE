@@ -94,43 +94,43 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
   EndIf
 
   If !TurtleClub.ActorIsInAnyFaction(PlayerRef, DisguiseFactions)
-    LogInfo("Cannot attach monitor because Player is not in any disguise factions")
+    LogError(NPC + ": cannot attach monitor because Player is not in any disguise factions")
     NPC = None
     Return
   EndIf
 
   If NPC.HasSpell(MonitorAbility)
-    LogInfo("Cannot attach monitor because NPC monitor already attached: " + NPC)
+    LogError(NPC + ": cannot attach monitor because NPC monitor already attached")
     NPC = None
     Return
   EndIf
 
-  If Global_iAlwaysSucceedDremora.GetValue() as Bool && TurtleClub.ActorIsInFaction(NPC, BaseFactions.GetAt(28) as Faction)
-    LogInfo("Cannot attach monitor because NPC is a dremora and always succeed vs. dremora is enabled: " + NPC)
+  If Global_iAlwaysSucceedDremora.GetValue() as Int == 1 && TurtleClub.ActorIsInFaction(NPC, BaseFactions.GetAt(28) as Faction)
+    LogError(NPC + ": cannot attach monitor because NPC is a dremora and always succeed vs. dremora is enabled")
     NPC = None
     Return
   EndIf
 
-  If Global_iAlwaysSucceedWerewolves.GetValue() as Bool && TurtleClub.ActorIsInFaction(NPC, BaseFactions.GetAt(16) as Faction)
-    LogInfo("Cannot attach monitor because NPC is a werewolf and always succeed vs. werewolves is enabled: " + NPC)
+  If Global_iAlwaysSucceedWerewolves.GetValue() as Int == 1 && TurtleClub.ActorIsInFaction(NPC, BaseFactions.GetAt(16) as Faction)
+    LogError(NPC + ": cannot attach monitor because NPC is a werewolf and always succeed vs. werewolves is enabled")
     NPC = None
     Return
   EndIf
 
   If TurtleClub.ActorIsInAnyFaction(NPC, ExcludedFactions)
-    LogInfo("Cannot attach monitor because NPC is an excluded faction: " + NPC)
+    LogError(NPC + ": cannot attach monitor because NPC is an excluded faction")
     NPC = None
     Return
   EndIf
 
   If TurtleClub.ActorHasAnyKeyword(NPC, ExcludedActors)
-    LogInfo("Cannot attach monitor because NPC has an excluded keyword: " + NPC)
+    LogError(NPC + ": cannot attach monitor because NPC has an excluded keyword")
     NPC = None
     Return
   EndIf
 
   If !TurtleClub.ActorIsInAnyFaction(NPC, BaseFactions)
-    LogInfo("Cannot attach monitor because NPC is not in any base factions: " + NPC)
+    LogError(NPC + ": cannot attach monitor because NPC is not in any base factions")
     NPC = None
     Return
   EndIf
@@ -139,13 +139,17 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
   FactionStatesTarget = TurtleClub.GetFactionStates(NPC, BaseFactions)
 
   If FindActiveDisguise() < 0
-    LogInfo("Cannot attach monitor because Player and NPC are not in matching factions: " + NPC)
+    LogError(NPC + ": cannot attach monitor because Player and NPC are not in matching factions")
     NPC = None
     Return
   EndIf
 
   If NPC.AddSpell(MonitorAbility)
-    LogInfo("Attached monitor after satisfying all conditions to: " + NPC)
+    LogInfo(NPC + ": attached monitor after satisfying all conditions")
     NPC = None
+    Return
   EndIf
+
+  LogError(NPC + ": cannot attach monitor for reasons unknown")
+  NPC = None
 EndEvent
