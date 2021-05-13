@@ -1,0 +1,61 @@
+<PapyrusProject
+  xmlns="PapyrusProject.xsd"
+  Game="SSE"
+  Flags="TESV_Papyrus_Flags.flg"
+  Output="@OutputPath\Scripts"
+  Optimize="true"
+  Anonymize="true"
+  Package="true"
+  Zip="true">
+  <Variables>
+    <Variable Name="ModName" Value="Master of Disguise - Special Edition"/>
+    <Variable Name="ModsPath" Value="F:\ModOrganizer\Games\SkyrimSE\mods" />
+    <Variable Name="OutputPath" Value="@ModsPath\@ModName"/>
+    <Variable Name="GamePath" Value="$Skyrim64Path"/>
+    <Variable Name="SourceDir" Value="Scripts\Source"/>
+    <Variable Name="ScriptsPath" Value="@GamePath\Data\@SourceDir"/>
+  </Variables>
+  <Imports>
+    <Import>F:\SDKs\SKSE\@SourceDir</Import>
+    <Import>@ModsPath\LibFire\@SourceDir</Import>
+    <Import>@ModsPath\LibMathf\@SourceDir</Import>
+    <Import>@ModsPath\LibTurtleClub\@SourceDir</Import>
+    <Import>https://api.github.com/repos/fireundubh/skyui/contents/dist/Data/Scripts/Source?ref=master</Import>
+    <Import>@OutputPath\@SourceDir</Import>
+    <Import>@ScriptsPath\Base</Import>
+  </Imports>
+  <Scripts>
+    <Script>LibFire.psc</Script>
+    <Script>LibMathf.psc</Script>
+    <Script>LibTurtleClub.psc</Script>
+    <Script>dubhUtilityScript.psc</Script>
+    <Script>dubhDisguiseMCMHelper.psc</Script>
+    <Script>dubhDisguiseMCMQuestScript.psc</Script>
+    <Script>dubhApplyingEffectScript.psc</Script>
+    <Script>dubhCompatibilityQuestScript.psc</Script>
+    <Script>dubhFactionEnemyScript.psc</Script>
+    <Script>dubhMonitorEffectScript.psc</Script>
+    <Script>dubhPlayerScript.psc</Script>
+  </Scripts>
+  <Packages Output="@OutputPath">
+    <Package Name="@ModName" RootDir="@OutputPath">
+      <Include>**/Scripts/*.pex</Include>
+      <Include>**/interface/**/*.txt</Include>
+      <Include>**/Strings/*.*</Include>
+    </Package>
+    <Package Name="@ModName - Textures" RootDir="@OutputPath">
+      <Include NoRecurse="false">*.dds</Include>
+    </Package>
+  </Packages>
+  <ZipFiles Output="@OutputPath">
+    <ZipFile Name="@ModName" RootDir="@OutputPath" Compression="deflate">
+      <Include NoRecurse="true">*.esp</Include>
+      <Include NoRecurse="true">*.bsa</Include>
+      <Include>**/SKSE/*.dll</Include>
+      <Include>**/Strings/*.*</Include>
+    </ZipFile>
+    <ZipFile Name="@ModName - English" RootDir="@OutputPath" Compression="deflate">
+      <Include>**/Strings/*.*</Include>
+    </ZipFile>
+  </ZipFiles>
+</PapyrusProject>
