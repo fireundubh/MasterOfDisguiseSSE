@@ -32,7 +32,7 @@ Float Function GetBestSkill(Actor akActor) Global
   Float fIllusionValue = akActor.GetActorValue("Illusion")
   Float fSpeechValue   = akActor.GetActorValue("Speechcraft")
 
-  Return Mathf.Max(fSneakValue, Mathf.Max(fIllusionValue, fSpeechValue))
+  Return LibMathf.Max(fSneakValue, LibMathf.Max(fIllusionValue, fSpeechValue))
 EndFunction
 
 
@@ -42,21 +42,21 @@ Int Function GetFovType(Float afHeadingAngle, Float afMaxHeadingAngle) Global
   ; When fDetectionViewCone == 190.0, fClearAngleMax = 15 degrees
   Float fClearAngleMax = afMaxHeadingAngle / (190.0 / 15.0)
 
-  If Mathf.InRange(afHeadingAngle, -fClearAngleMax, fClearAngleMax)
+  If LibMathf.InRange(afHeadingAngle, -fClearAngleMax, fClearAngleMax)
     Return 1
   EndIf
 
   ; When fDetectionViewCone == 190.0, fDistortedAngleMax = 30 degrees
   Float fDistortedAngleMax = fClearAngleMax * 2.0
 
-  If Mathf.InRange(afHeadingAngle, -fDistortedAngleMax, fDistortedAngleMax)
+  If LibMathf.InRange(afHeadingAngle, -fDistortedAngleMax, fDistortedAngleMax)
     Return 2
   EndIf
 
   ; When fDetectionViewCone == 190.0, fPeripheralAngleMax = 60 degrees
   Float fPeripheralAngleMax = fDistortedAngleMax * 2.0
 
-  If Mathf.InRange(afHeadingAngle, -fPeripheralAngleMax, fPeripheralAngleMax)
+  If LibMathf.InRange(afHeadingAngle, -fPeripheralAngleMax, fPeripheralAngleMax)
     Return 3
   EndIf
 
@@ -70,18 +70,18 @@ Int Function GetLosType(Float afDistanceToPlayer, Float afMaxDistanceToPlayer) G
   ; When afMaxDistanceToPlayer == 2048, fNearDistanceMax = 512
   Float fNearDistanceMax = afMaxDistanceToPlayer / 4.0
 
-  If Mathf.InRange(afDistanceToPlayer, 0.0, fNearDistanceMax)
+  If LibMathf.InRange(afDistanceToPlayer, 0.0, fNearDistanceMax)
     Return 1
   EndIf
 
   ; When afMaxDistanceToPlayer == 2048, fMidDistanceMax = 1024
   Float fMidDistanceMax  = afMaxDistanceToPlayer / 2.0
 
-  If Mathf.InRange(afDistanceToPlayer, fNearDistanceMax, fMidDistanceMax)
+  If LibMathf.InRange(afDistanceToPlayer, fNearDistanceMax, fMidDistanceMax)
     Return 2
   EndIf
 
-  If Mathf.InRange(afDistanceToPlayer, fMidDistanceMax, afMaxDistanceToPlayer)
+  If LibMathf.InRange(afDistanceToPlayer, fMidDistanceMax, afMaxDistanceToPlayer)
     Return 3
   EndIf
 

@@ -57,11 +57,11 @@ EndFunction
 Int Function FindActiveDisguise()
   ; Returns the index of the active disguise faction when player and NPC are in matching factions
 
-  If !TurtleClub.ActorIsInAnyFaction(PlayerRef, DisguiseFactions)
+  If !LibFire.ActorIsInAnyFaction(PlayerRef, DisguiseFactions)
     Return -1
   EndIf
 
-  If NPC && !TurtleClub.ActorIsInAnyFaction(NPC, BaseFactions)
+  If NPC && !LibFire.ActorIsInAnyFaction(NPC, BaseFactions)
     Return -1
   EndIF
 
@@ -69,7 +69,7 @@ Int Function FindActiveDisguise()
 
   While i < FactionStatesPlayer.Length && NPC
     If FactionStatesPlayer[i] && FactionStatesTarget[i]
-      If NPC && TurtleClub.ActorIsInFaction(NPC, BaseFactions.GetAt(i) as Faction)
+      If NPC && LibFire.ActorIsInFaction(NPC, BaseFactions.GetAt(i) as Faction)
         Return i
       EndIf
     EndIf
@@ -93,7 +93,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     Return
   EndIf
 
-  If !TurtleClub.ActorIsInAnyFaction(PlayerRef, DisguiseFactions)
+  If !LibFire.ActorIsInAnyFaction(PlayerRef, DisguiseFactions)
     LogError(NPC + ": cannot attach monitor because Player is not in any disguise factions")
     NPC = None
     Return
@@ -105,38 +105,38 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     Return
   EndIf
 
-  If Global_iAlwaysSucceedDremora.GetValue() as Int == 1 && TurtleClub.ActorIsInFaction(NPC, BaseFactions.GetAt(28) as Faction)
+  If Global_iAlwaysSucceedDremora.GetValue() as Int == 1 && LibFire.ActorIsInFaction(NPC, BaseFactions.GetAt(28) as Faction)
     LogError(NPC + ": cannot attach monitor because NPC is a dremora and always succeed vs. dremora is enabled")
     NPC = None
     Return
   EndIf
 
-  If Global_iAlwaysSucceedWerewolves.GetValue() as Int == 1 && TurtleClub.ActorIsInFaction(NPC, BaseFactions.GetAt(16) as Faction)
+  If Global_iAlwaysSucceedWerewolves.GetValue() as Int == 1 && LibFire.ActorIsInFaction(NPC, BaseFactions.GetAt(16) as Faction)
     LogError(NPC + ": cannot attach monitor because NPC is a werewolf and always succeed vs. werewolves is enabled")
     NPC = None
     Return
   EndIf
 
-  If TurtleClub.ActorIsInAnyFaction(NPC, ExcludedFactions)
+  If LibFire.ActorIsInAnyFaction(NPC, ExcludedFactions)
     LogError(NPC + ": cannot attach monitor because NPC is an excluded faction")
     NPC = None
     Return
   EndIf
 
-  If TurtleClub.ActorHasAnyKeyword(NPC, ExcludedActors)
+  If LibFire.ActorHasAnyKeyword(NPC, ExcludedActors)
     LogError(NPC + ": cannot attach monitor because NPC has an excluded keyword")
     NPC = None
     Return
   EndIf
 
-  If !TurtleClub.ActorIsInAnyFaction(NPC, BaseFactions)
+  If !LibFire.ActorIsInAnyFaction(NPC, BaseFactions)
     LogError(NPC + ": cannot attach monitor because NPC is not in any base factions")
     NPC = None
     Return
   EndIf
 
-  FactionStatesPlayer = TurtleClub.GetFactionStates(PlayerRef, DisguiseFactions)
-  FactionStatesTarget = TurtleClub.GetFactionStates(NPC, BaseFactions)
+  FactionStatesPlayer = LibTurtleClub.GetFactionStates(PlayerRef, DisguiseFactions)
+  FactionStatesTarget = LibTurtleClub.GetFactionStates(NPC, BaseFactions)
 
   If FindActiveDisguise() < 0
     LogError(NPC + ": cannot attach monitor because Player and NPC are not in matching factions")

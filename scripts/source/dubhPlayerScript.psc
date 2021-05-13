@@ -34,6 +34,7 @@ FormList Property DisguiseNotifyOff Auto
 FormList Property DisguiseNotifyOn Auto
 
 ; Ranges
+Int[] Property rgArmorSlots Auto
 Int[] Property rgGuardFactions Auto
 Int[] Property rgVampireFactions Auto
 Int[] Property rgVigilOfStendarrExclusions Auto
@@ -250,7 +251,7 @@ EndFunction
 
 
 Bool Function IsKeySlotEquipped(Int aiFactionIndex)
-  Form[] rgWornEquipment = TurtleClub.GetWornEquipment(PlayerRef)
+  Form[] rgWornEquipment = LibFire.GetWornEquipmentInSlots(PlayerRef, rgArmorSlots, True, True)
 
   If !rgWornEquipment
     LogError("rgWornEquipment was None - cannot get worn equipment for Player")
@@ -282,7 +283,7 @@ Bool Function IsKeySlotEquipped(Int aiFactionIndex)
 
   If aiFactionIndex == 28  ; Daedric Influence
     ; When Daedric gear is equipped in ANY slot, that's enough to match.
-    Bool[] rgDaedricWornForms = TurtleClub.SearchListForForms(kCurrentDisguise, rgWornEquipment)
+    Bool[] rgDaedricWornForms = LibFire.SearchListForForms(kCurrentDisguise, rgWornEquipment)
 
     Return rgDaedricWornForms && rgDaedricWornForms.Find(True) > -1
   EndIf
@@ -291,7 +292,7 @@ Bool Function IsKeySlotEquipped(Int aiFactionIndex)
     ; The essential slot for Bandits is configurable because this disguise can be disabled.
     Int iSlot = Global_iDisguiseEssentialSlotBandit.GetValue() as Int
 
-    If Mathf.InRange(iSlot, 0, 9)
+    If LibMathf.InRange(iSlot, 0, 9)
       Return rgWornEquipment[iSlot] && kCurrentDisguise.HasForm(rgWornEquipment[iSlot] as Form)
     EndIf
   EndIf
@@ -318,10 +319,10 @@ Function UpdateFactionRelations(Int aiFactionIndex)
 
   Faction kFaction = DisguiseFactions.GetAt(aiFactionIndex) as Faction
 
-  TurtleClub.SetAllies(kFaction, DisguiseFactionAllies.GetAt(aiFactionIndex) as FormList)
-  TurtleClub.SetEnemies(kFaction, DisguiseFactionEnemies.GetAt(aiFactionIndex) as FormList)
-  TurtleClub.SetAllies(kFaction, DisguiseFactionFriends.GetAt(aiFactionIndex) as FormList, True, True)
-  TurtleClub.SetEnemies(kFaction, DisguiseFactionNeutrals.GetAt(aiFactionIndex) as FormList, True, True)
+  LibFire.SetAllies(kFaction, DisguiseFactionAllies.GetAt(aiFactionIndex) as FormList)
+  LibFire.SetEnemies(kFaction, DisguiseFactionEnemies.GetAt(aiFactionIndex) as FormList)
+  LibFire.SetAllies(kFaction, DisguiseFactionFriends.GetAt(aiFactionIndex) as FormList, True, True)
+  LibFire.SetEnemies(kFaction, DisguiseFactionNeutrals.GetAt(aiFactionIndex) as FormList, True, True)
 EndFunction
 
 
@@ -385,11 +386,12 @@ Function TryAddDisguise(Int aiFactionIndex)
 
   ; for vampire night only feature
   If bVampireDisguise
-    Global_iDisguiseEquippedVampire.SetValue(Mathf.IfThen(bKeySlotEquipped, aiFactionIndex, 0))
+    Global_iDisguiseEquippedVampire.SetValue(LibMathf.IfThen(bKeySlotEquipped, aiFactionIndex, 0))
   EndIf
 
   If bVampireDisguise && Global_iVampireNightOnly.GetValue() as Bool
-    If TurtleClub.InRangeGameTime(Global_iVampireNightOnlyDayHourBegin.GetValue(), Global_iVampireNightOnlyDayHourEnd.GetValue())
+    Float fCurrentHourOfDay = LibFire.GetCurrentHourOfDay()
+    If LibMathf.InRange(fCurrentHourOfDay, Global_iVampireNightOnlyDayHourBegin.GetValue(), Global_iVampireNightOnlyDayHourEnd.GetValue())
       LogInfo("Vampire disguise can be activated at night only because day/night mode is enabled.")
       Return
     EndIf
@@ -450,7 +452,8 @@ Function TryRemoveDisguise(Int aiFactionIndex)
   Bool bVampireDisguise = rgVampireFactions.Find(aiFactionIndex) > -1
 
   If bVampireDisguise && Global_iVampireNightOnly.GetValue() as Bool
-    If TurtleClub.InRangeGameTime(Global_iVampireNightOnlyDayHourBegin.GetValue(), Global_iVampireNightOnlyDayHourEnd.GetValue())
+    Float fCurrentHourOfDay = LibFire.GetCurrentHourOfDay()
+    If LibMathf.InRange(fCurrentHourOfDay, Global_iVampireNightOnlyDayHourBegin.GetValue(), Global_iVampireNightOnlyDayHourEnd.GetValue())
       RemoveDisguise(aiFactionIndex)
       LogWarning("Removed vampire disguise because time restrictions are enabled.")
       Return
@@ -488,7 +491,7 @@ Function TryUpdateDisguise(Form akBaseObject)  ; used in event scope
     iCycles += 1
   EndWhile
 
-  Bool[] rgPossibleDisguises = TurtleClub.SearchListsForForm(DisguiseFormLists, akBaseObject)
+  Bool[] rgPossibleDisguises = LibFire.SearchListsForForm(DisguiseFormLists, akBaseObject)
 
   If rgPossibleDisguises.Find(True) < 0
     LogWarning("Cannot update disguise because form not associated with disguise: " + akBaseObject)
@@ -559,7 +562,7 @@ Event OnObjectEquipped(Form akBaseObject, ObjectReference akReference)
   Utility.Wait(1.0)
 
   If akBaseObject
-    FactionStates = TurtleClub.GetFactionStates(PlayerRef, DisguiseFactions)
+    FactionStates = LibTurtleClub.GetFactionStates(PlayerRef, DisguiseFactions)
 
     LogInfo("Trying to update disguise because the player equipped: " + akBaseObject)
     TryUpdateDisguise(akBaseObject)
@@ -575,7 +578,7 @@ Event OnObjectUnequipped(Form akBaseObject, ObjectReference akReference)
   EndWhile
 
   If akBaseObject
-    FactionStates = TurtleClub.GetFactionStates(PlayerRef, DisguiseFactions)
+    FactionStates = LibTurtleClub.GetFactionStates(PlayerRef, DisguiseFactions)
 
     LogInfo("Trying to update disguise because the player unequipped: " + akBaseObject)
     TryUpdateDisguise(akBaseObject)

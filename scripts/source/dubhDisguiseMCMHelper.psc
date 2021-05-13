@@ -153,7 +153,7 @@ Int Property OPTION_FLAG_AS_TEXTTOGGLE = 0x64 AutoReadonly ;show a menu alternat
 
 Int Function DefineMCMMenuOption(String sTextLabel, String sValuesCSV, Int iSelected = 0, Int iDefault = 0, Int iFlags = 0, String sHelpInfo = "", String sModEvent = "")
   Int iOID
-  String[] sValues = TurtleClub.SplitString(sValuesCSV, ",")
+  String[] sValues = LibFire.SplitString(sValuesCSV, ",")
 
   If Math.LogicalAnd(iFlags, OPTION_FLAG_AS_TEXTTOGGLE)
     iOID = AddTextOption(sTextLabel, sValues[iSelected], iFlags) % 128  ; - iOIDOffset
@@ -183,8 +183,8 @@ EndFunction
 Function DefineMCMParagraph(String asText, Int aiFlags = 0x1)  ;disabled type text by default
   ;display a paragraph of text, parsing for long lines and newlines
 
-  String sWrapped = TurtleClub.WrapString(asText, 47)
-  String[] rgLines = TurtleClub.SplitString(sWrapped, "\n")
+  String sWrapped = LibFire.WrapString(asText, 47)
+  String[] rgLines = LibFire.SplitString(sWrapped, "\n")
 
   Int i = 0
   While i < rgLines.Length
@@ -214,7 +214,7 @@ EndFunction
 String Function GetMCMValueString(String sTextLabel)
   Int iOID = GetMCMiOID(sTextLabel)
   If (iOptionTypes[iOID] == kMenu) || (iOptionTypes[iOID] == kTextToggle)
-    String[] sValues = TurtleClub.SplitString(sStringVals[iOID], ",")
+    String[] sValues = LibFire.SplitString(sStringVals[iOID], ",")
     Return sValues[iIntVals[iOID]]
   Else
     Return sStringVals[iOID]
@@ -238,7 +238,7 @@ EndFunction
 Event OnOptionSelect(Int iMCMOID)
   Int iOID = iMCMOID  % 128 ;-= iOIDOffset
   If iOptionTypes[iOID] == kTextToggle
-    String[] sValues = TurtleClub.SplitString(sStringVals[iOID], ",")
+    String[] sValues = LibFire.SplitString(sStringVals[iOID], ",")
     iIntVals[iOID] = (iIntVals[iOID] + 1) % sValues.Length
     If gGlobalVars[iOID]
       gGlobalVars[iOID].SetValue(iIntVals[iOID] as Float)
@@ -306,14 +306,14 @@ EndEvent
 
 Event OnOptionMenuOpen(Int iOID)
   iOID = iOID  % 128  ; -= iOIDOffset
-  SetMenuDialogOptions(TurtleClub.SplitString(sStringVals[iOID], ","))
+  SetMenuDialogOptions(LibFire.SplitString(sStringVals[iOID], ","))
   SetMenuDialogStartIndex(iIntVals[iOID])
   SetMenuDialogDefaultIndex(fSliderDefaults[iOID] as Int)
 EndEvent
 
 Event OnOptionMenuAccept(Int iMCMOID, Int index)
   Int iOID = iMCMOID  % 128 ; -= iOIDOffset
-  String[] sValues = TurtleClub.SplitString(sStringVals[iOID], ",")
+  String[] sValues = LibFire.SplitString(sStringVals[iOID], ",")
   iIntVals[iOID] = index
   If gGlobalVars[iOID]
     gGlobalVars[iOID].SetValue(index as Float)

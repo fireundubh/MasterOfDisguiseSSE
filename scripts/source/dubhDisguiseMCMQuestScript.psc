@@ -523,30 +523,34 @@ Event OnBooleanToggleClick(string asEventName, string strArg, float numArg, Form
   ElseIf asEventName == "dubhToggleGuardsVsDarkBrotherhood"
     bGuardsVsDarkBrotherhood = numArg as Bool
     If bGuardsVsDarkBrotherhood
-      TurtleClub.SetEnemies(DisguiseFaction03, GuardFactions)
+      LibFire.SetEnemies(DisguiseFaction03, GuardFactions)
     Else
-      TurtleClub.SetEnemies(DisguiseFaction03, GuardFactions, True, True)
+      LibFire.SetEnemies(DisguiseFaction03, GuardFactions, True, True)
     EndIf
   ElseIf asEventName == "dubhToggleGuardsVsDarkBrotherhoodNPC"
     bGuardsVsDarkBrotherhoodNPC = numArg as Bool
     If bGuardsVsDarkBrotherhoodNPC
-      TurtleClub.SetEnemies(DarkBrotherhoodFaction, GuardFactions)
+      LibFire.SetEnemies(DarkBrotherhoodFaction, GuardFactions)
     Else
-      TurtleClub.SetEnemies(DarkBrotherhoodFaction, GuardFactions, True, True)
+      LibFire.SetEnemies(DarkBrotherhoodFaction, GuardFactions, True, True)
     EndIf
   ElseIf asEventName == "dubhToggleGuardsVsThievesGuild"
     bGuardsVsThievesGuild = numArg as Bool
     If bGuardsVsThievesGuild
-      TurtleClub.SetEnemies(DisguiseFaction12, GuardFactions)
+      LibFire.SetEnemies(DisguiseFaction12, GuardFactions)
+      LogInfo("Guards vs. Thieves Guild toggled on for Player")
     Else
-      TurtleClub.SetEnemies(DisguiseFaction12, GuardFactions, True, True)
+      LibFire.SetEnemies(DisguiseFaction12, GuardFactions, True, True)
+      LogInfo("Guards vs. Thieves Guild toggled off for Player")
     EndIf
   ElseIf asEventName == "dubhToggleGuardsVsThievesGuildNPC"
     bGuardsVsThievesGuildNPC = numArg as Bool
     If bGuardsVsThievesGuildNPC
-      TurtleClub.SetEnemies(ThievesGuildFaction, GuardFactions)
+      LibFire.SetEnemies(ThievesGuildFaction, GuardFactions)
+      LogInfo("Guards vs. Thieves Guild toggled on for NPCs")
     Else
-      TurtleClub.SetEnemies(ThievesGuildFaction, GuardFactions, True, True)
+      LibFire.SetEnemies(ThievesGuildFaction, GuardFactions, True, True)
+      LogInfo("Guards vs. Thieves Guild toggled off for NPCs")
     EndIf
   ElseIf asEventName == "CheatAddDisguise01" && numArg as Bool
     PlayerRef.AddItem(DisguiseFormLists.GetAt(0) as FormList, 1, True)
