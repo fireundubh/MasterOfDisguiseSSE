@@ -6,6 +6,10 @@ etc/
 optional/
 *.7z
 *.bak
+*.bsa
+*.DLSTRINGS
+*.esp
+*.ILSTRINGS
 *.ini
 *.json
 *.md
@@ -15,5 +19,6 @@ optional/
 *.psd
 *.pui
 *.sample
+*.STRINGS
 *.yml
 *.zip
