@@ -19,6 +19,9 @@ FormList Property ExcludedActors Auto
 FormList Property ExcludedFactions Auto
 Spell Property MonitorAbility Auto
 
+FormList Property BanditAllies Auto
+FormList Property BanditFriends Auto
+
 ; =============================================================================
 ; SCRIPT-LOCAL VARIABLES
 ; =============================================================================
@@ -57,21 +60,11 @@ EndFunction
 Int Function FindActiveDisguise()
   ; Returns the index of the active disguise faction when player and NPC are in matching factions
 
-  If !LibFire.ActorIsInAnyFaction(PlayerRef, DisguiseFactions)
-    Return -1
-  EndIf
-
-  If NPC && !LibFire.ActorIsInAnyFaction(NPC, BaseFactions)
-    Return -1
-  EndIF
-
   Int i = 0
 
   While i < FactionStatesPlayer.Length && NPC
     If FactionStatesPlayer[i] && FactionStatesTarget[i]
-      If NPC && LibFire.ActorIsInFaction(NPC, BaseFactions.GetAt(i) as Faction)
-        Return i
-      EndIf
+      Return i
     EndIf
 
     i += 1
@@ -93,26 +86,8 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     Return
   EndIf
 
-  If !LibFire.ActorIsInAnyFaction(PlayerRef, DisguiseFactions)
-    LogError(NPC + ": cannot attach monitor because Player is not in any disguise factions")
-    NPC = None
-    Return
-  EndIf
-
-  If NPC.HasSpell(MonitorAbility)
-    LogError(NPC + ": cannot attach monitor because NPC monitor already attached")
-    NPC = None
-    Return
-  EndIf
-
-  If Global_iAlwaysSucceedDremora.GetValue() as Int == 1 && LibFire.ActorIsInFaction(NPC, BaseFactions.GetAt(28) as Faction)
-    LogError(NPC + ": cannot attach monitor because NPC is a dremora and always succeed vs. dremora is enabled")
-    NPC = None
-    Return
-  EndIf
-
-  If Global_iAlwaysSucceedWerewolves.GetValue() as Int == 1 && LibFire.ActorIsInFaction(NPC, BaseFactions.GetAt(16) as Faction)
-    LogError(NPC + ": cannot attach monitor because NPC is a werewolf and always succeed vs. werewolves is enabled")
+  If LibFire.ActorHasAnyKeyword(NPC, ExcludedActors)
+    LogError(NPC + ": cannot attach monitor because NPC has an excluded keyword")
     NPC = None
     Return
   EndIf
@@ -123,20 +98,43 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     Return
   EndIf
 
-  If LibFire.ActorHasAnyKeyword(NPC, ExcludedActors)
-    LogError(NPC + ": cannot attach monitor because NPC has an excluded keyword")
-    NPC = None
-    Return
-  EndIf
-
-  If !LibFire.ActorIsInAnyFaction(NPC, BaseFactions)
-    LogError(NPC + ": cannot attach monitor because NPC is not in any base factions")
+  If NPC.HasSpell(MonitorAbility)
+    LogError(NPC + ": cannot attach monitor because NPC monitor already attached")
     NPC = None
     Return
   EndIf
 
   FactionStatesPlayer = LibTurtleClub.GetFactionStates(PlayerRef, DisguiseFactions)
+
+  If FactionStatesPlayer.Find(True) < 0
+    LogError(NPC + ": cannot attach monitor because Player is not in any disguise factions")
+    NPC = None
+    Return
+  EndIf
+
   FactionStatesTarget = LibTurtleClub.GetFactionStates(NPC, BaseFactions)
+
+  If Global_iAlwaysSucceedDremora.GetValue() as Int == 1 && FactionStatesTarget[28]
+    LogError(NPC + ": cannot attach monitor because NPC is a dremora and always succeed vs. dremora is enabled")
+    NPC = None
+    Return
+  EndIf
+
+  If Global_iAlwaysSucceedWerewolves.GetValue() as Int == 1 && FactionStatesTarget[16]
+    LogError(NPC + ": cannot attach monitor because NPC is a werewolf and always succeed vs. werewolves is enabled")
+    NPC = None
+    Return
+  EndIf
+
+  If FactionStatesPlayer[30] && !FactionStatesTarget[30]
+    FactionStatesTarget[30] = LibFire.ActorIsInAnyFaction(NPC, BanditAllies) || LibFire.ActorIsInAnyFaction(NPC, BanditFriends)
+  EndIf
+
+  If FactionStatesTarget.Find(True) < 0
+    LogError(NPC + ": cannot attach monitor because NPC is not in any base or bandit factions")
+    NPC = None
+    Return
+  EndIf
 
   If FindActiveDisguise() < 0
     LogError(NPC + ": cannot attach monitor because Player and NPC are not in matching factions")

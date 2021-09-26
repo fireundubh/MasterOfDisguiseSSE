@@ -84,8 +84,6 @@ FormList Property TrackedBounties Auto
 Quest Property CompatibilityQuest Auto
 Quest Property DetectionQuest Auto
 
-Bool bCompatibilitySystem        = True
-Bool bDiscoverySystem            = True
 Bool bGuardsVsDarkBrotherhood    = False
 Bool bGuardsVsDarkBrotherhoodNPC = False
 Bool bGuardsVsThievesGuild       = False
@@ -166,28 +164,29 @@ EndFunction
 
 
 Bool Function StartQuest(Quest akQuest)
-  ; Starts quest with debug output
+  If akQuest.IsStopping()
+    LogInfo(akQuest + ": could not start because quest is stopping")
+    Return False
+  EndIf
 
   If !akQuest.IsStopped()
-    LogInfo("Could not start " + akQuest + " because the quest was not stopped")
+    LogInfo(akQuest + ": could not start because quest is not stopped")
     Return False
   EndIf
 
   If akQuest.Start()
-    LogInfo("Successfully started quest: " + akQuest)
+    LogInfo(akQuest + ": successfully started")
     Return True
   EndIf
 
-  LogWarning("Could not start " + akQuest + " because the quest was not stopped")
+  LogWarning(akQuest + ": could not start due to unknown reasons")
   Return False
 EndFunction
 
 
 Bool Function StopQuest(Quest akQuest)
-  ; Stops quest with debug output
-
-  If akQuest.IsRunning()
-    LogWarning("Could not stop " + akQuest + " because the quest was not running")
+  If akQuest.IsStopped() || akQuest.IsStopping()
+    LogWarning(akQuest + ": could not stop because quest is already stopped or stopping")
     Return False
   EndIf
 
@@ -196,21 +195,24 @@ Bool Function StopQuest(Quest akQuest)
   akQuest.Stop()
 
   While akQuest.IsRunning()
+    LogInfo(akQuest + ": waiting until quest stops running")
     _cycles += 1
   EndWhile
 
   While akQuest.IsStopping()
+    LogInfo(akQuest + ": waiting until quest stops stopping")
     _cycles += 1
   EndWhile
 
   If akQuest.IsStopped()
-    LogInfo("Successfully stopped: " + akQuest)
+    LogInfo(akQuest + ": successfully stopped")
     Return True
   EndIf
 
-  LogWarning("Could not stop " + akQuest + " because the quest was not running")
+  LogWarning(akQuest + ": could not stop due to unknown reasons")
   Return False
 EndFunction
+
 ; =============================================================================
 ; EVENTS
 ; =============================================================================
@@ -453,8 +455,8 @@ Event OnPageReset(String asPageName)
     AddEmptyOption()
 
     AddHeaderOption("$dubhHeadingAdvancedSetup")
-    Alias_DefineMCMToggleOptionModEvent("AdvancedOptionCompatibility", "ToggleDynamicCompatibility", bCompatibilitySystem)
-    Alias_DefineMCMToggleOptionModEvent("AdvancedOptionDiscoverySystem", "ToggleDiscoverySystem", bDiscoverySystem)
+    Alias_DefineMCMToggleOptionModEvent("AdvancedOptionCompatibility", "ToggleDynamicCompatibility", CompatibilityQuest.IsRunning())
+    Alias_DefineMCMToggleOptionModEvent("AdvancedOptionDiscoverySystem", "ToggleDiscoverySystem", DetectionQuest.IsRunning())
 
   ElseIf asPageName == "$dubhPageCheats"
     SetCursorFillMode(TOP_TO_BOTTOM)
@@ -502,23 +504,16 @@ Event OnBooleanToggleClick(string asEventName, string strArg, float numArg, Form
   FormList kForms = None
 
   If asEventName == "dubhToggleDynamicCompatibility"
-    bCompatibilitySystem = numArg as Bool
-
-    If bCompatibilitySystem
-      StartQuest(CompatibilityQuest)
+    If CompatibilityQuest.IsRunning()
+      StopQuest(CompatibilityQuest)
     Else
-      If StopQuest(CompatibilityQuest)
-        ClearDisguiseFactions()
-;       ClearTrackedBounties()
-      EndIf
+      StartQuest(CompatibilityQuest)
     EndIf
   ElseIf asEventName == "dubhToggleDiscoverySystem"
-    bDiscoverySystem = numArg as Bool
-
-    If bDiscoverySystem
-      StartQuest(DetectionQuest)
-    Else
+    If DetectionQuest.IsRunning()
       StopQuest(DetectionQuest)
+    Else
+      StartQuest(DetectionQuest)
     EndIf
   ElseIf asEventName == "dubhToggleGuardsVsDarkBrotherhood"
     bGuardsVsDarkBrotherhood = numArg as Bool

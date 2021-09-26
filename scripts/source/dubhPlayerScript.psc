@@ -478,8 +478,8 @@ EndFunction
 
 
 Function UpdateDisguise(Int aiFactionIndex)  ; used in event scope
-  TryAddDisguise(aiFactionIndex)
   TryRemoveDisguise(aiFactionIndex)
+  TryAddDisguise(aiFactionIndex)
 EndFunction
 
 
@@ -494,7 +494,7 @@ Function TryUpdateDisguise(Form akBaseObject)  ; used in event scope
   Bool[] rgPossibleDisguises = LibFire.SearchListsForForm(DisguiseFormLists, akBaseObject)
 
   If rgPossibleDisguises.Find(True) < 0
-    LogWarning("Cannot update disguise because form not associated with disguise: " + akBaseObject)
+    LogWarning("Cannot determine possible disguises for form: " + akBaseObject)
     Return
   EndIf
 
