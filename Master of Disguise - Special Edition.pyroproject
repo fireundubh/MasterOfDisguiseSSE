@@ -9,24 +9,25 @@
   Zip="true">
   <Variables>
     <Variable Name="ModName" Value="Master of Disguise - Special Edition"/>
-    <Variable Name="ModsPath" Value="F:\ModOrganizer\Games\SkyrimSE\mods" />
+    <Variable Name="ModsPath" Value="G:\ModOrganizer\Games\SkyrimSE\mods" />
     <Variable Name="OutputPath" Value="@ModsPath\@ModName"/>
     <Variable Name="GamePath" Value="$Skyrim64Path"/>
     <Variable Name="SourceDir" Value="Scripts\Source"/>
     <Variable Name="ScriptsPath" Value="@GamePath\Data\@SourceDir"/>
+    <Variable Name="TranslationsPath" Value="@OutputPath\interface\translations"/>
+    <Variable Name="EnglishPath" Value="@TranslationsPath\master of disguise - special edition_english.txt"/>
+    <Variable Name="RepoBaseURL" Value="https://api.github.com/repos/fireundubh"/>
   </Variables>
   <Imports>
-    <Import>F:\SDKs\SKSE\@SourceDir</Import>
+    <Import>G:\SDKs\SKSE\@SourceDir</Import>
     <Import>@ModsPath\LibFire\@SourceDir</Import>
     <Import>@ModsPath\LibMathf\@SourceDir</Import>
     <Import>@ModsPath\LibTurtleClub\@SourceDir</Import>
-    <Import>https://api.github.com/repos/fireundubh/skyui/contents/dist/Data/Scripts/Source?ref=master</Import>
+    <Import>https://github.com/fireundubh/skyui?ref=master</Import>
     <Import>@OutputPath\@SourceDir</Import>
     <Import>@ScriptsPath\Base</Import>
   </Imports>
   <Scripts>
-    <Script>LibFire.psc</Script>
-    <Script>LibMathf.psc</Script>
     <Script>LibTurtleClub.psc</Script>
     <Script>dubhUtilityScript.psc</Script>
     <Script>dubhDisguiseMCMHelper.psc</Script>
@@ -39,23 +40,33 @@
   </Scripts>
   <Packages Output="@OutputPath">
     <Package Name="@ModName" RootDir="@OutputPath">
-      <Include>**/Scripts/*.pex</Include>
-      <Include>**/interface/**/*.txt</Include>
-      <Include>**/Strings/*.*</Include>
+      <Match In="Scripts">*.pex</Match>
+      <Match In="Strings">*.*strings</Match>
+      <Match In="interface\translations">*.txt</Match>
     </Package>
     <Package Name="@ModName - Textures" RootDir="@OutputPath">
-      <Include NoRecurse="false">*.dds</Include>
+      <Match In="interface">*.dds</Match>
     </Package>
   </Packages>
   <ZipFiles Output="@OutputPath">
     <ZipFile Name="@ModName" RootDir="@OutputPath" Compression="deflate">
-      <Include NoRecurse="true">*.esp</Include>
-      <Include NoRecurse="true">*.bsa</Include>
-      <Include>**/SKSE/*.dll</Include>
-      <Include>**/Strings/*.*</Include>
+      <Match NoRecurse="true">*.esp</Match>
+      <Match NoRecurse="true">*.bsa</Match>
+      <Match In="SKSE">*.dll</Match>
+      <Match In="Strings">*.*strings</Match>
     </ZipFile>
     <ZipFile Name="@ModName - English" RootDir="@OutputPath" Compression="deflate">
-      <Include>**/Strings/*.*</Include>
+      <Match In="Strings">*.*strings</Match>
     </ZipFile>
   </ZipFiles>
+  <PreBuildEvent Description='Copying: "interface\translations\master of disguise - special edition_english.txt"'>
+    <Command>copy "@EnglishPath" /Y "@TranslationsPath\master of disguise - special edition_czech.txt"</Command>
+    <Command>copy "@EnglishPath" /Y "@TranslationsPath\master of disguise - special edition_french.txt"</Command>
+    <Command>copy "@EnglishPath" /Y "@TranslationsPath\master of disguise - special edition_german.txt"</Command>
+    <Command>copy "@EnglishPath" /Y "@TranslationsPath\master of disguise - special edition_italian.txt"</Command>
+    <Command>copy "@EnglishPath" /Y "@TranslationsPath\master of disguise - special edition_polish.txt"</Command>
+    <Command>copy "@EnglishPath" /Y "@TranslationsPath\master of disguise - special edition_russian.txt"</Command>
+    <Command>copy "@EnglishPath" /Y "@TranslationsPath\master of disguise - special edition_spanish.txt"</Command>
+    <Command>copy "@EnglishPath" /Y "@TranslationsPath\master of disguise - special edition_japanese.txt"</Command>
+  </PreBuildEvent>
 </PapyrusProject>
