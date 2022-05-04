@@ -34,7 +34,6 @@ FormList Property DisguiseNotifyOff Auto
 FormList Property DisguiseNotifyOn Auto
 
 ; Ranges
-Int[] Property rgArmorSlots Auto
 Int[] Property rgGuardFactions Auto
 Int[] Property rgVampireFactions Auto
 Int[] Property rgVigilOfStendarrExclusions Auto
@@ -251,7 +250,7 @@ EndFunction
 
 
 Bool Function IsKeySlotEquipped(Int aiFactionIndex)
-  Form[] rgWornEquipment = LibFire.GetWornEquipmentInSlots(PlayerRef, rgArmorSlots, True, True)
+  Form[] rgWornEquipment = LibTurtleClub.GetWornEquipment(PlayerRef, True, True)
 
   If !rgWornEquipment
     LogError("rgWornEquipment was None - cannot get worn equipment for Player")
