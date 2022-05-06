@@ -9,8 +9,8 @@
   Zip="true">
   <Variables>
     <Variable Name="ModName" Value="Master of Disguise - Special Edition"/>
-    <Variable Name="Version" Value="1_5_3_1"/>
-    <Variable Name="ModsPath" Value="G:\ModOrganizer\Games\SkyrimSE\mods" />
+    <Variable Name="Version" Value="1_5_4"/>
+    <Variable Name="ModsPath" Value="$SkyrimAE_Mods" />
     <Variable Name="OutputPath" Value="@ModsPath\@ModName"/>
     <Variable Name="GamePath" Value="$Skyrim64Path"/>
     <Variable Name="SourceDir" Value="Scripts\Source"/>
@@ -59,13 +59,13 @@
     </ZipFile>
   </ZipFiles>
   <PreBuildEvent Description='Copying: "interface\translations\master of disguise - special edition_english.txt"'>
-    <Command>xcopy "@EnglishPath" "@TranslationsPath\master of disguise - special edition_czech.txt" /d /y</Command>
-    <Command>xcopy "@EnglishPath" "@TranslationsPath\master of disguise - special edition_french.txt" /d /y</Command>
-    <Command>xcopy "@EnglishPath" "@TranslationsPath\master of disguise - special edition_german.txt" /d /y</Command>
-    <Command>xcopy "@EnglishPath" "@TranslationsPath\master of disguise - special edition_italian.txt" /d /y</Command>
-    <Command>xcopy "@EnglishPath" "@TranslationsPath\master of disguise - special edition_polish.txt" /d /y</Command>
-    <Command>xcopy "@EnglishPath" "@TranslationsPath\master of disguise - special edition_russian.txt" /d /y</Command>
-    <Command>xcopy "@EnglishPath" "@TranslationsPath\master of disguise - special edition_spanish.txt" /d /y</Command>
-    <Command>xcopy "@EnglishPath" "@TranslationsPath\master of disguise - special edition_japanese.txt" /d /y</Command>
+    <Command>copy "@EnglishPath" /Y "@TranslationsPath\master of disguise - special edition_czech.txt"</Command>
+    <Command>copy "@EnglishPath" /Y "@TranslationsPath\master of disguise - special edition_french.txt"</Command>
+    <Command>copy "@EnglishPath" /Y "@TranslationsPath\master of disguise - special edition_german.txt"</Command>
+    <Command>copy "@EnglishPath" /Y "@TranslationsPath\master of disguise - special edition_italian.txt"</Command>
+    <Command>copy "@EnglishPath" /Y "@TranslationsPath\master of disguise - special edition_polish.txt"</Command>
+    <Command>copy "@EnglishPath" /Y "@TranslationsPath\master of disguise - special edition_russian.txt"</Command>
+    <Command>copy "@EnglishPath" /Y "@TranslationsPath\master of disguise - special edition_spanish.txt"</Command>
+    <Command>copy "@EnglishPath" /Y "@TranslationsPath\master of disguise - special edition_japanese.txt"</Command>
   </PreBuildEvent>
 </PapyrusProject>
