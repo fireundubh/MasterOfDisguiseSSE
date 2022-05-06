@@ -36,8 +36,6 @@ FormList Property DisguiseNotifyOn Auto
 ; Ranges
 Int[] Property rgGuardFactions Auto
 Int[] Property rgVampireFactions Auto
-Int[] Property rgVigilOfStendarrExclusions Auto
-Int[] Property rgWindhelmGuardExclusions Auto
 
 ; Sequences
 Message[] Property MessageChain Auto
@@ -73,179 +71,6 @@ EndFunction
 
 Function LogError(String asTextToPrint)
   _Log("[ERRO] " + asTextToPrint, 2)
-EndFunction
-
-
-Bool Function CanDisguiseActivate(Int aiFactionIndex)
-  ; Returns TRUE if the disguise can be activated without conflicts (mutually exclusive disguises)
-
-  If aiFactionIndex == 1 || aiFactionIndex == 4 || aiFactionIndex == 8
-    ; Cultists vs. Vigil of Stendarr
-    If aiFactionIndex == 1 && FactionStates[12]
-      Return False
-    EndIf
-
-    ; Forsworn vs. Windhelm Guard
-    If aiFactionIndex == 4 && FactionStates[26]
-      Return False
-    EndIf
-
-    ; Silver Hand
-    If aiFactionIndex == 8
-      ; Silver Hand vs. Werewolves
-      If FactionStates[16]
-        Return False
-      EndIf
-
-      ; Silver Hand vs. The Companions
-      If FactionStates[17]
-        Return False
-      EndIf
-
-      ; Silver Hand vs. Bandits
-      If FactionStates[30]
-        Return False
-      EndIf
-    EndIf
-  EndIf
-
-  ; rgVigilOfStendarrExclusions
-  If FactionStates[12] && rgVigilOfStendarrExclusions.Find(aiFactionIndex) > -1
-    Return False
-  EndIf
-
-  ; Vigil of Stendarr
-  If aiFactionIndex == 12
-    ; Vigil of Stendarr vs. Cultists
-    If FactionStates[1]
-      Return False
-    EndIf
-
-    ; Vigil of Stendarr vs. Clan Volkihar
-    If FactionStates[13]
-      Return False
-    EndIf
-
-    ; Vigil of Stendarr vs. Necromancers
-    If FactionStates[14]
-      Return False
-    EndIf
-
-    ; Vigil of Stendarr vs. Vampires
-    If FactionStates[15]
-      Return False
-    EndIf
-
-    ; Vigil of Stendarr vs. Werewolves
-    If FactionStates[16]
-      Return False
-    EndIf
-
-    ; Vigil of Stendarr vs. The Companions
-    If FactionStates[17]
-      Return False
-    EndIf
-
-    ; Vigil of Stendarr vs. Daedric Influence
-    If FactionStates[28]
-      Return False
-    EndIf
-  EndIf
-
-  ; rgWindhelmGuardExclusions
-  If FactionStates[26] && rgWindhelmGuardExclusions.Find(aiFactionIndex) > -1
-    Return False
-  EndIf
-
-  ; Windhelm Guard
-  If aiFactionIndex == 26
-    ; Windhelm Guard vs. Forsworn
-    If FactionStates[4]
-      Return False
-    EndIf
-
-    ; Windhelm Guard vs. Falkreath Guard
-    If FactionStates[18]
-      Return False
-    EndIf
-
-    ; Windhelm Guard vs. Hjaalmarch Guard
-    If FactionStates[19]
-      Return False
-    EndIf
-
-    ; Windhelm Guard vs. Markarth Guard
-    If FactionStates[20]
-      Return False
-    EndIf
-
-    ; Windhelm Guard vs. Pale Guard
-    If FactionStates[21]
-      Return False
-    EndIf
-
-    ; Windhelm Guard vs. Raven Rock Guard
-    If FactionStates[22]
-      Return False
-    EndIf
-
-    ; Windhelm Guard vs. Riften Guard
-    If FactionStates[23]
-      Return False
-    EndIf
-
-    ; Windhelm Guard vs. Solitude Guard
-    If FactionStates[24]
-      Return False
-    EndIf
-
-    ; Windhelm Guard vs. Whiterun Guard
-    If FactionStates[25]
-      Return False
-    EndIf
-
-    ; Windhelm Guard vs. Winterhold Guard
-    If FactionStates[27]
-      Return False
-    EndIf
-
-    ; Windhelm Guard vs. Bandits
-    If FactionStates[30]
-      Return False
-    EndIf
-  EndIf
-
-  If aiFactionIndex == 27 || aiFactionIndex == 28
-    ; Winterhold Guard vs. Windhelm Guard
-    If aiFactionIndex == 27 && FactionStates[26]
-      Return False
-    EndIf
-
-    ; Daedric Influence vs. Vigil of Stendarr
-    If aiFactionIndex == 28 && FactionStates[12]
-      Return False
-    EndIf
-  EndIf
-
-  ; Bandits
-  If aiFactionIndex == 30
-    ; Bandits can be toggled on/off through MCM
-    If !(Global_iDisguiseEnabledBandit.GetValue() as Bool)
-      Return False
-    EndIf
-
-    ; Bandits vs. Silver Hand
-    If FactionStates[8]
-      Return False
-    EndIf
-
-    ; Bandits vs. Windhelm Guard
-    If FactionStates[26]
-      Return False
-    EndIf
-  EndIf
-
-  Return True
 EndFunction
 
 
@@ -375,7 +200,7 @@ Function TryAddDisguise(Int aiFactionIndex)
   EndIf
 
   ; prevent adding mutually exclusive disguises
-  If !CanDisguiseActivate(aiFactionIndex)
+  If !LibTurtleClub.CanDisguiseActivate(aiFactionIndex, FactionStates) || (aiFactionIndex == 30 && !(Global_iDisguiseEnabledBandit.GetValue() as Bool))
     LogWarning("Cannot add disguise because disguise cannot be activated: aiFactionIndex = " + aiFactionIndex)
     Return
   EndIf
