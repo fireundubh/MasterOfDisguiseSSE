@@ -174,7 +174,7 @@ Int Function DefineMCMMenuOption(String sTextLabel, String sValuesCSV, Int iSele
 EndFunction
 
 Int Function DefineMCMMenuOptionGlobal(String sTextLabel, String sValuesCSV, GlobalVariable giSelected, Int iDefault = 0, Int iFlags = 0, String sHelpInfo = "", String sModEvent = "")
-  Int iSelected  = giSelected.GetValue() as Int
+  Int iSelected = giSelected.GetValue() as Int
   Int iOID = DefineMCMMenuOption(sTextLabel, sValuesCSV, iSelected, iDefault, iFlags, sHelpInfo, sModEvent)
   gGlobalVars[iOID] = giSelected
   Return iOID
@@ -216,9 +216,8 @@ String Function GetMCMValueString(String sTextLabel)
   If (iOptionTypes[iOID] == kMenu) || (iOptionTypes[iOID] == kTextToggle)
     String[] sValues = LibFire.SplitString(sStringVals[iOID], ",")
     Return sValues[iIntVals[iOID]]
-  Else
-    Return sStringVals[iOID]
   EndIf
+  Return sStringVals[iOID]
 EndFunction
 
 Int Function GetMCMiOID(String sTextLabel)
@@ -296,11 +295,11 @@ event OnOptionKeyMapChange(Int iMCMOID, Int KeyCode, String conflictControl, Str
     ; If conflict avoided
   Else
     iIntVals[iOID] = KeyCode
-  SetKeyMapOptionValue(iMCMOID, KeyCode)
-  If gGlobalVars[iOID]
-    gGlobalVars[iOID].SetValue(KeyCode)
-  EndIf
-  DispatchModEvent(iOID)
+    SetKeyMapOptionValue(iMCMOID, KeyCode)
+    If gGlobalVars[iOID]
+      gGlobalVars[iOID].SetValue(KeyCode)
+    EndIf
+    DispatchModEvent(iOID)
   EndIf
 EndEvent
 
@@ -336,9 +335,8 @@ Bool Function DispatchModEvent(Int iOID)
       SendModEvent(sModEvents[iOID], sStringVals[iOID], iIntVals[iOID] as Float)
     EndIf
     Return True
-  Else
-    Return False
   EndIf
+  Return False
 EndFunction
 
 String Function GetCustomControl(Int keyCode)
@@ -359,19 +357,19 @@ EndEvent
 
 Function InitArrays()
   iOptionTypes = new Int[128]
-  sHelpInfos = New String[128]
-  sLabels = New String[128]
-  gGlobalVars = New GlobalVariable[128]
-  bBoolVals = New Bool[128]
-  fFloatVals = New Float[128]
-  fSliderMaxs = New Float[128]
-  fSliderMins = New Float[128]
-  fSliderDefaults = New Float[128]
-  fSliderIntervals = New Float[128]
-  sSliderFormats = New String[128]
-  sKeyConflicts = New String[128]
+  sHelpInfos = new String[128]
+  sLabels = new String[128]
+  gGlobalVars = new GlobalVariable[128]
+  bBoolVals = new Bool[128]
+  fFloatVals = new Float[128]
+  fSliderMaxs = new Float[128]
+  fSliderMins = new Float[128]
+  fSliderDefaults = new Float[128]
+  fSliderIntervals = new Float[128]
+  sSliderFormats = new String[128]
+  sKeyConflicts = new String[128]
   iIntVals = new Int[128]
-  sStringVals = New String[128]
-  sModEvents = New String[128]
+  sStringVals = new String[128]
+  sModEvents = new String[128]
   iBitMasks = new Int[128]
 EndFunction
