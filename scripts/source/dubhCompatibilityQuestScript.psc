@@ -1,5 +1,7 @@
 ScriptName dubhCompatibilityQuestScript Extends Quest
 
+Import dubhUtilityScript
+
 ; =============================================================================
 ; PROPERTIES
 ; =============================================================================
@@ -18,7 +20,7 @@ Faction Property VampireThrallFaction Auto
 ; =============================================================================
 
 Function _Log(String asTextToPrint, Int aiSeverity = 0)
-  If Global_iPapyrusLoggingEnabled.GetValue() as Bool
+  If IntToBool(Global_iPapyrusLoggingEnabled)
     Debug.OpenUserLog("MasterOfDisguise")
     Debug.TraceUser("MasterOfDisguise", "Master of Disguise: dubhCompatibilityQuestScript> " + asTextToPrint, aiSeverity)
   EndIf
@@ -64,7 +66,7 @@ EndEvent
 
 
 Event OnUpdate()
-  If !(Global_iFactionsUpdateCompleted.GetValue() as Bool)
+  If !IntToBool(Global_iFactionsUpdateCompleted)
     SetUpFactions()
     Global_iFactionsUpdateCompleted.SetValue(1)
   EndIf

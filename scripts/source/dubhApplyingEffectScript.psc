@@ -35,7 +35,7 @@ Bool[] FactionStatesTarget
 ; =============================================================================
 
 Function _Log(String asTextToPrint, Int aiSeverity = 0)
-  If Global_iPapyrusLoggingEnabled.GetValue() as Bool
+  If IntToBool(Global_iPapyrusLoggingEnabled)
     Debug.OpenUserLog("MasterOfDisguise")
     Debug.TraceUser("MasterOfDisguise", "dubhApplyingEffectScript> " + asTextToPrint, aiSeverity)
   EndIf
@@ -80,7 +80,7 @@ EndFunction
 Event OnEffectStart(Actor akTarget, Actor akCaster)
   NPC = akTarget
 
-  If !(Global_iDiscoveryEnabled.GetValue() as Bool)
+  If !IntToBool(Global_iDiscoveryEnabled)
     LogInfo("Cannot attach monitor because the discovery system is disabled")
     NPC = None
     Return
@@ -114,13 +114,13 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 
   FactionStatesTarget = LibTurtleClub.GetFactionStates(NPC, BaseFactions)
 
-  If Global_iAlwaysSucceedDremora.GetValue() as Int == 1 && FactionStatesTarget[28]
+  If IntToBool(Global_iAlwaysSucceedDremora) && FactionStatesTarget[28]
     LogError(NPC + ": cannot attach monitor because NPC is a dremora and always succeed vs. dremora is enabled")
     NPC = None
     Return
   EndIf
 
-  If Global_iAlwaysSucceedWerewolves.GetValue() as Int == 1 && FactionStatesTarget[16]
+  If IntToBool(Global_iAlwaysSucceedWerewolves) && FactionStatesTarget[16]
     LogError(NPC + ": cannot attach monitor because NPC is a werewolf and always succeed vs. werewolves is enabled")
     NPC = None
     Return
