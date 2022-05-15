@@ -9,7 +9,8 @@
   Zip="true">
   <Variables>
     <Variable Name="ModName" Value="Master of Disguise - Special Edition"/>
-    <Variable Name="Version" Value="1_5_4"/>
+    <Variable Name="ShortName" Value="MasterOfDisguise"/>
+    <Variable Name="Version" Value="1_5_5"/>
     <Variable Name="ModsPath" Value="$SkyrimAE_Mods" />
     <Variable Name="OutputPath" Value="@ModsPath\@ModName"/>
     <Variable Name="GamePath" Value="$Skyrim64Path"/>
@@ -49,12 +50,13 @@
     </Package>
   </Packages>
   <ZipFiles Output="@OutputPath">
-    <ZipFile Name="@ModName-@Version" RootDir="@OutputPath" Compression="deflate">
+    <ZipFile Name="@ShortName-@Version" RootDir="@OutputPath" Compression="deflate">
       <Match NoRecurse="true">*.esp</Match>
       <Match NoRecurse="true">*.bsa</Match>
       <Match In="Strings">*.*strings</Match>
+      <Match In="optional">*Joinable*.esp</Match>
     </ZipFile>
-    <ZipFile Name="@ModName-@Version-en_US" RootDir="@OutputPath" Compression="deflate">
+    <ZipFile Name="@ShortName-@Version-en_US" RootDir="@OutputPath" Compression="deflate">
       <Match In="Strings">*.*strings</Match>
     </ZipFile>
   </ZipFiles>
