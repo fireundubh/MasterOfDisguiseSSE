@@ -96,3 +96,7 @@ Function Suspend(Float afSeconds) Global
     Utility.Wait(1.0)
   EndWhile
 EndFunction
+
+Bool Function IntToBool(GlobalVariable AGlobalVariable) Global
+  Return AGlobalVariable.GetValue() as Int == 1
+EndFunction
