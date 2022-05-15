@@ -181,16 +181,7 @@ Int Function DefineMCMMenuOptionGlobal(String sTextLabel, String sValuesCSV, Glo
 EndFunction
 
 Function DefineMCMParagraph(String asText, Int aiFlags = 0x1)  ;disabled type text by default
-  ;display a paragraph of text, parsing for long lines and newlines
-
-  String sWrapped = LibFire.WrapString(asText, 47)
-  String[] rgLines = LibFire.SplitString(sWrapped, "\n")
-
-  Int i = 0
-  While i < rgLines.Length
-    AddTextOption(rgLines[i], "", aiFlags)
-    i += 1
-  EndWhile
+  AddTextOption(asText, "", aiFlags)
 EndFunction
 
 Int Function DefineMCMHelpTopic(String sTopic, String sHelpInfo = "")
