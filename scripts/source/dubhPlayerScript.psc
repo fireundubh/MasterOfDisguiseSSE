@@ -7,7 +7,6 @@ Import dubhUtilityScript
 ; =============================================================================
 
 GlobalVariable Property Global_iCloakEnabled Auto
-GlobalVariable Property Global_iDisguiseEnabledBandit Auto
 GlobalVariable Property Global_iDisguiseEquippedVampire Auto
 GlobalVariable Property Global_iDisguiseEssentialSlotBandit Auto
 GlobalVariable Property Global_iNotifyEnabled Auto
@@ -36,6 +35,7 @@ FormList Property DisguiseNotifyOn Auto
 ; Ranges
 Int[] Property rgGuardFactions Auto
 Int[] Property rgVampireFactions Auto
+GlobalVariable[] Property rgDisguisesEnabled Auto
 
 ; Sequences
 Message[] Property MessageChain Auto
@@ -162,7 +162,7 @@ Function AddDisguise(Int aiFactionIndex)
 
     UpdateFactionRelations(aiFactionIndex)
 
-    If Global_iNotifyEnabled.GetValue() as Bool
+    If IntToBool(Global_iNotifyEnabled)
       (DisguiseNotifyOn.GetAt(aiFactionIndex) as Message).Show()
     Else
       (DisguiseMessageOn.GetAt(aiFactionIndex) as Message).Show()
@@ -188,9 +188,9 @@ Function TryAddDisguise(Int aiFactionIndex)
     Return
   EndIf
 
-  ; prevent adding bandit disguise if disabled
-  If aiFactionIndex == 30 && !(Global_iDisguiseEnabledBandit.GetValue() as Bool)
-    LogWarning("Cannot add disguise because Bandit Disguise is disabled.")
+  ; prevent adding disguise if disabled
+  If !IntToBool(rgDisguisesEnabled[aiFactionIndex])
+    LogWarning("Cannot add disguise because disguise " + aiFactionIndex + " is disabled.")
     Return
   EndIf
 
@@ -200,8 +200,8 @@ Function TryAddDisguise(Int aiFactionIndex)
   EndIf
 
   ; prevent adding mutually exclusive disguises
-  If !LibTurtleClub.CanDisguiseActivate(aiFactionIndex, FactionStates) || (aiFactionIndex == 30 && !(Global_iDisguiseEnabledBandit.GetValue() as Bool))
-    LogWarning("Cannot add disguise because disguise cannot be activated: aiFactionIndex = " + aiFactionIndex)
+  If !LibTurtleClub.CanDisguiseActivate(aiFactionIndex, FactionStates) || !IntToBool(rgDisguisesEnabled[aiFactionIndex])
+    LogWarning("Cannot activate disguise because disguise " + aiFactionIndex + " is disabled.")
     Return
   EndIf
 
@@ -213,7 +213,7 @@ Function TryAddDisguise(Int aiFactionIndex)
     Global_iDisguiseEquippedVampire.SetValue(LibMathf.IfThen(bKeySlotEquipped, aiFactionIndex, 0))
   EndIf
 
-  If bVampireDisguise && Global_iVampireNightOnly.GetValue() as Bool
+  If bVampireDisguise && IntToBool(Global_iVampireNightOnly)
     Float fCurrentHourOfDay = LibFire.GetCurrentHourOfDay()
     If LibMathf.InRange(fCurrentHourOfDay, Global_iVampireNightOnlyDayHourBegin.GetValue(), Global_iVampireNightOnlyDayHourEnd.GetValue())
       LogInfo("Vampire disguise can be activated at night only because day/night mode is enabled.")
@@ -238,7 +238,7 @@ Function RemoveDisguise(Int aiFactionIndex)
   If TryRemoveFromFaction(PlayerRef, kDisguiseFaction)
     LogInfo("Removed player from disguise faction: kDisguiseFaction = " + kDisguiseFaction)
 
-    If Global_iNotifyEnabled.GetValue() as Bool
+    If IntToBool(Global_iNotifyEnabled)
       (DisguiseNotifyOff.GetAt(aiFactionIndex) as Message).Show()
     Else
       (DisguiseMessageOff.GetAt(aiFactionIndex) as Message).Show()
@@ -260,10 +260,10 @@ Function TryRemoveDisguise(Int aiFactionIndex)
     Return
   EndIf
 
-  ; remove bandit disguise if player had disguise equipped and then disabled it
-  If aiFactionIndex == 30 && !(Global_iDisguiseEnabledBandit.GetValue() as Bool)
+  ; remove disguise if player had disguise equipped and then disabled it
+  If !IntToBool(rgDisguisesEnabled[aiFactionIndex])
     RemoveDisguise(aiFactionIndex)
-    LogWarning("Removed bandit disguise because bandit disguise is disabled.")
+    LogWarning("Removed disguise because disguise " + aiFactionIndex + " is disabled.")
     Return
   EndIf
 
@@ -275,7 +275,7 @@ Function TryRemoveDisguise(Int aiFactionIndex)
 
   Bool bVampireDisguise = rgVampireFactions.Find(aiFactionIndex) > -1
 
-  If bVampireDisguise && Global_iVampireNightOnly.GetValue() as Bool
+  If bVampireDisguise && IntToBool(Global_iVampireNightOnly)
     Float fCurrentHourOfDay = LibFire.GetCurrentHourOfDay()
     If LibMathf.InRange(fCurrentHourOfDay, Global_iVampireNightOnlyDayHourBegin.GetValue(), Global_iVampireNightOnlyDayHourEnd.GetValue())
       RemoveDisguise(aiFactionIndex)
