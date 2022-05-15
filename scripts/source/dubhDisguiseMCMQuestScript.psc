@@ -62,13 +62,14 @@ GlobalVariable Property Global_iCrimeWhiterun Auto
 GlobalVariable Property Global_iCrimeWindhelm Auto
 GlobalVariable Property Global_iCrimeWinterhold Auto
 GlobalVariable Property Global_iDiscoveryEnabled Auto
-GlobalVariable Property Global_iDisguiseEnabledBandit Auto
 GlobalVariable Property Global_iDisguiseEssentialSlotBandit Auto
 GlobalVariable Property Global_iNotifyEnabled Auto
 GlobalVariable Property Global_iPapyrusLoggingEnabled Auto
 GlobalVariable Property Global_iVampireNightOnly Auto
 GlobalVariable Property Global_iVampireNightOnlyDayHourBegin Auto
 GlobalVariable Property Global_iVampireNightOnlyDayHourEnd Auto
+
+GlobalVariable[] Property rgDisguisesEnabled Auto
 
 Actor Property PlayerRef Auto
 Faction Property DisguiseFaction03 Auto  ; Dark Brotherhood
@@ -84,6 +85,10 @@ FormList Property TrackedBounties Auto
 Quest Property CompatibilityQuest Auto
 Quest Property DetectionQuest Auto
 
+dubhPlayerScript Property PlayerScript Auto
+
+Sound Property PickUpSound Auto
+
 Bool bGuardsVsDarkBrotherhood    = False
 Bool bGuardsVsDarkBrotherhoodNPC = False
 Bool bGuardsVsThievesGuild       = False
@@ -96,7 +101,7 @@ String ModName
 ; =============================================================================
 
 Function _Log(String asTextToPrint, Int aiSeverity = 0)
-  If Global_iPapyrusLoggingEnabled.GetValue() as Bool
+  If (Global_iPapyrusLoggingEnabled.GetValue() as Int) as Bool
     Debug.OpenUserLog("MasterOfDisguise")
     Debug.TraceUser("MasterOfDisguise", "dubhDisguiseMCMQuestScript> " + asTextToPrint, aiSeverity)
   EndIf
@@ -124,7 +129,6 @@ Function Alias_DefineMCMToggleOptionModEvent(String asName, String asModEvent, B
   DefineMCMToggleOption("$dubh" + asName, abInitialState, aiFlags, "$dubhHelp" + asName, asModEvent)
 EndFunction
 
-
 Function Alias_DefineMCMToggleModEvent(String asModEvent, Bool abInitialState = False, Int aiFlags = 0)
   ; when mod event name will be used as option name
   RegisterForModEvent(asModEvent, "OnBooleanToggleClick")
@@ -143,6 +147,20 @@ EndFunction
 
 Function Alias_DefineMCMMenuOptionGlobal(String asTextLabel, String asValuesCSV, GlobalVariable akGlobal, Int iDefault = 0)
   DefineMCMMenuOptionGlobal("$dubh" + asTextLabel, asValuesCSV, akGlobal, iDefault, 0, "$dubhHelp" + asTextLabel, "")
+EndFunction
+
+
+Function DefineMCMToggleDisguise(Int aiIndex)
+  Int actualIndex = aiIndex - 1
+  String sModEvent = "TryUpdateDisguise_" + actualIndex
+  RegisterForModEvent(sModEvent, "OnBooleanToggleClick")
+  DefineMCMToggleOptionGlobal("$dubhDisguise" + aiIndex, rgDisguisesEnabled[actualIndex] as GlobalVariable, 0, "$dubhHelpDisguise" + aiIndex, sModEvent)
+EndFunction
+
+Function DefineMCMCheatDisguise(Int aiIndex)
+  String sModEvent = "CheatDisguise_" + aiIndex
+  RegisterForModEvent(sModEvent, "OnBooleanToggleClick")
+  DefineMCMTextOption("$dubhDisguise" + aiIndex, "", OPTION_FLAG_AS_TEXTTOGGLE, "$dubhHelpCheatDisguise" + aiIndex, sModEvent)
 EndFunction
 
 
@@ -218,15 +236,16 @@ EndFunction
 ; =============================================================================
 
 Event OnConfigInit()
-  Pages = new String[8]
+  Pages = new String[9]
   Pages[0] = "$dubhPageInformation"
-  Pages[1] = "$dubhPageDiscovery"
-  Pages[2] = "$dubhPageScoring"
-  Pages[3] = "$dubhPageRace"
-  Pages[4] = "$dubhPageCrime"
-  Pages[5] = "$dubhPageCrimeBounties"
-  Pages[6] = "$dubhPageAdvanced"
-  Pages[7] = "$dubhPageCheats"
+  Pages[1] = "$dubhPageDisguises"
+  Pages[2] = "$dubhPageDiscovery"
+  Pages[3] = "$dubhPageScoring"
+  Pages[4] = "$dubhPageRace"
+  Pages[5] = "$dubhPageCrime"
+  Pages[6] = "$dubhPageCrimeBounties"
+  Pages[7] = "$dubhPageAdvanced"
+  Pages[8] = "$dubhPageCheats"
 EndEvent
 
 Event OnPageReset(String asPageName)
@@ -383,8 +402,8 @@ Event OnPageReset(String asPageName)
     AddEmptyOption()
 
     AddHeaderOption("$dubhHeadingCrimeBanditDisguise")
-    Alias_DefineMCMToggleOptionGlobal("CrimeOptionBandits",    Global_iDisguiseEnabledBandit)
-    Alias_DefineMCMMenuOptionGlobal(  "CrimeOptionBanditSlot", "$dubhSlot0,$dubhSlot1,$dubhSlot2,$dubhSlot3,$dubhSlot4,$dubhSlot5,$dubhSlot6,$dubhSlot7,$dubhSlot8,$dubhSlot9", Global_iDisguiseEssentialSlotBandit, 1)
+    Alias_DefineMCMToggleOptionGlobal("CrimeOptionBandits", rgDisguisesEnabled[30] as GlobalVariable)
+    Alias_DefineMCMMenuOptionGlobal("CrimeOptionBanditSlot", "$dubhSlot0,$dubhSlot1,$dubhSlot2,$dubhSlot3,$dubhSlot4,$dubhSlot5,$dubhSlot6,$dubhSlot7,$dubhSlot8,$dubhSlot9", Global_iDisguiseEssentialSlotBandit, 1)
 
     SetCursorPosition(1)
 
@@ -458,49 +477,95 @@ Event OnPageReset(String asPageName)
     Alias_DefineMCMToggleOptionModEvent("AdvancedOptionCompatibility", "ToggleDynamicCompatibility", CompatibilityQuest.IsRunning())
     Alias_DefineMCMToggleOptionModEvent("AdvancedOptionDiscoverySystem", "ToggleDiscoverySystem", DetectionQuest.IsRunning())
 
-  ElseIf asPageName == "$dubhPageCheats"
+  ElseIf asPageName == "$dubhPageDisguises"
     SetCursorFillMode(TOP_TO_BOTTOM)
 
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise01", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise02", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise03", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise04", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise05", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise06", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise07", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise08", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise09", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise10", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise11", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise12", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise13", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise14", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise15", False)
+    DefineMCMParagraph("$dubhHelpPageDisguises1")
+    DefineMCMParagraph("$dubhHelpPageDisguises2")
+
+    AddEmptyOption()
+
+    DefineMCMParagraph("$dubhHelpPageDisguises3")
+    DefineMCMParagraph("$dubhHelpPageDisguises4")
+    DefineMCMParagraph("$dubhHelpPageDisguises5")
 
     SetCursorPosition(1)
 
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise16", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise17", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise18", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise19", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise20", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise21", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise22", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise23", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise24", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise25", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise26", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise27", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise28", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise29", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise30", False)
-    Alias_DefineMCMToggleModEvent("CheatAddDisguise31", False)
+    DefineMCMToggleDisguise(1)
+    DefineMCMToggleDisguise(2)
+    DefineMCMToggleDisguise(3)
+    DefineMCMToggleDisguise(4)
+    DefineMCMToggleDisguise(5)
+    DefineMCMToggleDisguise(6)
+    DefineMCMToggleDisguise(7)
+    DefineMCMToggleDisguise(8)
+    DefineMCMToggleDisguise(9)
+    DefineMCMToggleDisguise(10)
+    DefineMCMToggleDisguise(11)
+    DefineMCMToggleDisguise(12)
+    DefineMCMToggleDisguise(13)
+    DefineMCMToggleDisguise(14)
+    DefineMCMToggleDisguise(15)
+    DefineMCMToggleDisguise(16)
+    DefineMCMToggleDisguise(17)
+    DefineMCMToggleDisguise(18)
+    DefineMCMToggleDisguise(19)
+    DefineMCMToggleDisguise(20)
+    DefineMCMToggleDisguise(21)
+    DefineMCMToggleDisguise(22)
+    DefineMCMToggleDisguise(23)
+    DefineMCMToggleDisguise(24)
+    DefineMCMToggleDisguise(25)
+    DefineMCMToggleDisguise(26)
+    DefineMCMToggleDisguise(27)
+    DefineMCMToggleDisguise(28)
+    DefineMCMToggleDisguise(29)
+    DefineMCMToggleDisguise(30)
+    DefineMCMToggleDisguise(31)
 
+  ElseIf asPageName == "$dubhPageCheats"
+    SetCursorFillMode(TOP_TO_BOTTOM)
+
+    DefineMCMParagraph("$dubhHelpPageCheats1")
+    DefineMCMParagraph("$dubhHelpPageCheats2")
+
+    SetCursorPosition(1)
+
+    DefineMCMCheatDisguise(1)
+    DefineMCMCheatDisguise(2)
+    DefineMCMCheatDisguise(3)
+    DefineMCMCheatDisguise(4)
+    DefineMCMCheatDisguise(5)
+    DefineMCMCheatDisguise(6)
+    DefineMCMCheatDisguise(7)
+    DefineMCMCheatDisguise(8)
+    DefineMCMCheatDisguise(9)
+    DefineMCMCheatDisguise(10)
+    DefineMCMCheatDisguise(11)
+    DefineMCMCheatDisguise(12)
+    DefineMCMCheatDisguise(13)
+    DefineMCMCheatDisguise(14)
+    DefineMCMCheatDisguise(15)
+    DefineMCMCheatDisguise(16)
+    DefineMCMCheatDisguise(17)
+    DefineMCMCheatDisguise(18)
+    DefineMCMCheatDisguise(19)
+    DefineMCMCheatDisguise(20)
+    DefineMCMCheatDisguise(21)
+    DefineMCMCheatDisguise(22)
+    DefineMCMCheatDisguise(23)
+    DefineMCMCheatDisguise(24)
+    DefineMCMCheatDisguise(25)
+    DefineMCMCheatDisguise(26)
+    DefineMCMCheatDisguise(27)
+    DefineMCMCheatDisguise(28)
+    DefineMCMCheatDisguise(29)
+    DefineMCMCheatDisguise(30)
+    DefineMCMCheatDisguise(31)
   EndIf
 EndEvent
 
-
-Event OnBooleanToggleClick(string asEventName, string strArg, float numArg, Form sender)
+Event OnBooleanToggleClick(String asEventName, String strArg, Float numArg, Form sender)
   FormList kForms = None
 
   If asEventName == "dubhToggleDynamicCompatibility"
@@ -515,6 +580,18 @@ Event OnBooleanToggleClick(string asEventName, string strArg, float numArg, Form
     Else
       StartQuest(DetectionQuest)
     EndIf
+  ElseIf LibFire.ContainsText(asEventName, "CheatDisguise")
+    String[] results = LibFire.SplitString(asEventName, "_")
+    Int factionIndex = (results[1] as Int) - 1
+    PlayerRef.AddItem(DisguiseFormLists.GetAt(factionIndex) as FormList, 1, True)
+    LogInfo("Added items from disguise formlist: factionIndex = " + factionIndex)
+    Int instanceId = PickUpSound.Play(PlayerRef)
+    Sound.SetInstanceVolume(instanceId, 1.0)
+  ElseIf LibFire.ContainsText(asEventName, "TryUpdateDisguise")
+    String[] results = LibFire.SplitString(asEventName, "_")
+    Int factionIndex = results[1] as Int
+    PlayerScript.UpdateDisguise(factionIndex)
+    LogInfo("Updated disguise: factionIndex = " + factionIndex)
   ElseIf asEventName == "dubhToggleGuardsVsDarkBrotherhood"
     bGuardsVsDarkBrotherhood = numArg as Bool
     If bGuardsVsDarkBrotherhood
@@ -547,98 +624,5 @@ Event OnBooleanToggleClick(string asEventName, string strArg, float numArg, Form
       LibFire.SetEnemies(ThievesGuildFaction, GuardFactions, True, True)
       LogInfo("Guards vs. Thieves Guild toggled off for NPCs")
     EndIf
-  ElseIf asEventName == "CheatAddDisguise01" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(0) as FormList, 1, True)
-    LogInfo("Added items from Blades formlist.")
-  ElseIf asEventName == "CheatAddDisguise02" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(1) as FormList, 1, True)
-    LogInfo("Added items from Cultists formlist.")
-  ElseIf asEventName == "CheatAddDisguise03" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(2) as FormList, 1, True)
-    LogInfo("Added items from Dark Brotherhood formlist.")
-  ElseIf asEventName == "CheatAddDisguise04" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(3) as FormList, 1, True)
-    LogInfo("Added items from Dawnguard formlist.")
-  ElseIf asEventName == "CheatAddDisguise05" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(4) as FormList, 1, True)
-    LogInfo("Added items from Forsworn formlist.")
-  ElseIf asEventName == "CheatAddDisguise06" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(5) as FormList, 1, True)
-    LogInfo("Added items from Imperial Legion formlist.")
-  ElseIf asEventName == "CheatAddDisguise07" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(6) as FormList, 1, True)
-    LogInfo("Added items from Morag Tong formlist.")
-  ElseIf asEventName == "CheatAddDisguise08" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(7) as FormList, 1, True)
-    LogInfo("Added items from Penitus Oculatus formlist.")
-  ElseIf asEventName == "CheatAddDisguise09" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(8) as FormList, 1, True)
-    LogInfo("Added items from Silver Hand formlist.")
-  ElseIf asEventName == "CheatAddDisguise10" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(9) as FormList, 1, True)
-    LogInfo("Added items from Stormcloaks formlist.")
-  ElseIf asEventName == "CheatAddDisguise11" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(10) as FormList, 1, True)
-    LogInfo("Added items from Thalmor formlist.")
-  ElseIf asEventName == "CheatAddDisguise12" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(11) as FormList, 1, True)
-    LogInfo("Added items from Thieves Guild formlist.")
-  ElseIf asEventName == "CheatAddDisguise13" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(12) as FormList, 1, True)
-    LogInfo("Added items from Vigil of Stendarr formlist.")
-  ElseIf asEventName == "CheatAddDisguise14" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(13) as FormList, 1, True)
-    LogInfo("Added items from Volkihar Clan formlist.")
-  ElseIf asEventName == "CheatAddDisguise15" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(14) as FormList, 1, True)
-    LogInfo("Added items from Necromancers formlist.")
-  ElseIf asEventName == "CheatAddDisguise16" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(15) as FormList, 1, True)
-    LogInfo("Added items from Vampires formlist.")
-  ElseIf asEventName == "CheatAddDisguise17" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(16) as FormList, 1, True)
-    LogInfo("Added items from Werewolves formlist.")
-  ElseIf asEventName == "CheatAddDisguise18" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(17) as FormList, 1, True)
-    LogInfo("Added items from Companions formlist.")
-  ElseIf asEventName == "CheatAddDisguise19" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(18) as FormList, 1, True)
-    LogInfo("Added items from Falkreath Guard formlist.")
-  ElseIf asEventName == "CheatAddDisguise20" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(19) as FormList, 1, True)
-    LogInfo("Added items from Hjaalmarch Guard formlist.")
-  ElseIf asEventName == "CheatAddDisguise21" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(20) as FormList, 1, True)
-    LogInfo("Added items from Markarth Guard formlist.")
-  ElseIf asEventName == "CheatAddDisguise22" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(21) as FormList, 1, True)
-    LogInfo("Added items from Pale Guard formlist.")
-  ElseIf asEventName == "CheatAddDisguise23" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(22) as FormList, 1, True)
-    LogInfo("Added items from Raven Rock Guard formlist.")
-  ElseIf asEventName == "CheatAddDisguise24" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(23) as FormList, 1, True)
-    LogInfo("Added items from Riften Guard formlist.")
-  ElseIf asEventName == "CheatAddDisguise25" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(24) as FormList, 1, True)
-    LogInfo("Added items from Solitude Guard formlist.")
-  ElseIf asEventName == "CheatAddDisguise26" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(25) as FormList, 1, True)
-    LogInfo("Added items from Whiterun Guard formlist.")
-  ElseIf asEventName == "CheatAddDisguise27" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(26) as FormList, 1, True)
-    LogInfo("Added items from Windhelm Guard formlist.")
-  ElseIf asEventName == "CheatAddDisguise28" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(27) as FormList, 1, True)
-    LogInfo("Added items from Winterhold Guard formlist.")
-  ElseIf asEventName == "CheatAddDisguise29" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(28) as FormList, 1, True)
-    LogInfo("Added items from Daedric Influence formlist.")
-  ElseIf asEventName == "CheatAddDisguise30" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(29) as FormList, 1, True)
-    LogInfo("Added items from Alik'r Mercenaries formlist.")
-  ElseIf asEventName == "CheatAddDisguise31" && numArg as Bool
-    PlayerRef.AddItem(DisguiseFormLists.GetAt(30) as FormList, 1, True)
-    LogInfo("Added items from Bandits formlist.")
   EndIf
 EndEvent
